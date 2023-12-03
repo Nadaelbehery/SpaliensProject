@@ -384,7 +384,7 @@ void Display() {
 	gluQuadricNormals(qobj, GL_SMOOTH);
 	gluSphere(qobj, 100, 100, 100);
 	gluDeleteQuadric(qobj);
-
+	
 
 	glPopMatrix();
 	glFlush();
