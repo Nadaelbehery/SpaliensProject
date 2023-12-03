@@ -390,6 +390,9 @@ void Display() {
 	glFlush();
 	glutSwapBuffers();
 }
+
+bool rotateLeft = false;
+bool rotateRight = false;
 void Keyboard(unsigned char key, int x, int y) {
 	float d = 0.50;
 
@@ -439,12 +442,20 @@ void Keyboard(unsigned char key, int x, int y) {
 		break;
 
 	case 'a':
-		model_spacecraft.pos.x= model_spacecraft.pos.x - 10;
+		if (!rotateLeft) {
+			model_spacecraft.rot.z = model_spacecraft.rot.z + 15.0f;
+			rotateLeft = true; // Set the flag to true to indicate rotation occurred
+		}
+		model_spacecraft.pos.x = model_spacecraft.pos.x - 10;
 		break;
 	case 's':
 		model_spacecraft.pos.z = model_spacecraft.pos.z + 10;
 		break;
 	case 'd':
+		if (!rotateRight) {
+			model_spacecraft.rot.z = model_spacecraft.rot.z - 15.0f;
+			rotateRight = true; // Set the flag to true to indicate rotation occurred
+		}
 		model_spacecraft.pos.x = model_spacecraft.pos.x + 10;
 		break;
 	case 'e':
@@ -457,6 +468,24 @@ void Keyboard(unsigned char key, int x, int y) {
 
 	glutPostRedisplay();
 }
+
+void KeyUp(unsigned char key, int x, int y) {
+	switch (key) {
+	case 'a':
+		rotateLeft = false;
+		// Reset the rotation when 'a' key is released
+		model_spacecraft.rot.z = 0.0f;
+		break;
+	case 'd':
+		rotateRight = false;
+		// Reset the rotation when 'd' key is released
+		model_spacecraft.rot.z = 0.0f;
+		break;
+	}
+	glutPostRedisplay();
+}
+
+
 void Special(int key, int x, int y) {
 	float a = 1.0;
 
@@ -497,6 +526,7 @@ void main(int argc, char** argv) {
 	glutCreateWindow("Lab 5");
 	glutDisplayFunc(Display);
 	glutKeyboardFunc(Keyboard);
+	glutKeyboardUpFunc(KeyUp);  // Register KeyUp function
 	glutSpecialFunc(Special);
 	srand(time(NULL));
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
