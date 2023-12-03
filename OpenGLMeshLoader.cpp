@@ -85,7 +85,7 @@ public:
 	}
 
 	void setFrontView() {
-		eye = Vector3f(0.0f, 2.0f, 2.0f);
+		eye = Vector3f(0.0f, 15.0f, 60.0f);
 		center = Vector3f(0.0f, 0.0f, 0.0f);
 		up = Vector3f(0.0f, 1.0f, 0.0f);
 	}
@@ -435,17 +435,17 @@ void Keyboard(unsigned char key, int x, int y) {
 		camera.setSideView();
 		break;
 	case 'w':
-		model_spacecraft.pos.z=model_spacecraft.pos.z-1;
+		model_spacecraft.pos.z=model_spacecraft.pos.z-10;
 		break;
 
 	case 'a':
-		model_spacecraft.pos.x= model_spacecraft.pos.x - 1;
+		model_spacecraft.pos.x= model_spacecraft.pos.x - 10;
 		break;
 	case 's':
-		model_spacecraft.pos.z = model_spacecraft.pos.z + 1;
+		model_spacecraft.pos.z = model_spacecraft.pos.z + 10;
 		break;
 	case 'd':
-		model_spacecraft.pos.x = model_spacecraft.pos.x + 1;
+		model_spacecraft.pos.x = model_spacecraft.pos.x + 10;
 		break;
 	case 'e':
 		model_spacecraft.rot.z = model_spacecraft.rot.z + 15.0f;
@@ -480,7 +480,7 @@ void Special(int key, int x, int y) {
 void init() {
 
 	initComets();
-
+	camera.setFrontView();
 
 
 
