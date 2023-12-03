@@ -2,7 +2,12 @@
 #include "Model_3DS.h"
 #include "GLTexture.h"
 #include <glut.h>
-
+#include <math.h>
+#include <ctime>
+#include <stdio.h>
+#include <iostream>
+#include <sstream>
+using namespace std;
 int WIDTH = 1280;
 int HEIGHT = 720;
 
@@ -13,16 +18,18 @@ char title[] = "3D Model Loader Sample";
 GLdouble fovy = 45.0;
 GLdouble aspectRatio = (GLdouble)WIDTH / (GLdouble)HEIGHT;
 GLdouble zNear = 0.1;
-GLdouble zFar = 100;
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <glut.h>
+GLdouble zFar = 1000;
+
 
 
 // Model Variables
-Model_3DS model_house;
+Model_3DS model_spacecraft;
+Model_3DS model_commet [12];
+int commets[12] = { 1,1,1,1,1,1,1,1,1,1,1,1 };
 Model_3DS model_tree;
+
+int score;
+int health=12;
 
 // Textures
 GLTexture tex_ground;
@@ -209,15 +216,74 @@ void drawJack() {
 	drawJackPart();
 	glPopMatrix();
 }
+
 void LoadAssets()
 {
 	// Loading Model files
-	model_house.Load("Models/spacecraft/spacecraft.3DS");
+	model_spacecraft.Load("Models/spacecraft/spacecraft.3DS");
+	for (int i=0; i < 12; i++) {
+		model_commet[i].Load("Models/commet/asteroid 3DS.3DS");
+	}
 	model_tree.Load("Models/tree/Tree1.3ds");
 
 	// Loading texture files
 	//tex_ground.Load("Textures/universe.bmp");
 	loadBMP(&tex, "Textures/universe.bmp", true);
+}
+void initComets() {
+	for (int i = 0; i < 12 && commets[i] == 1; i++) {
+		float xPosition = 2 + (rand() % 1000); // Calculate x position based on spacing
+		float zPosition = 2 + (rand() % 1000);
+		glPushMatrix();
+		glScalef(0.2, 0.2, 0.2);
+		model_commet[i].Draw();
+		glPopMatrix();
+		model_commet[i].lit = true;
+		model_commet[i].pos.x = xPosition;
+		model_commet[i].pos.z = zPosition;
+		model_commet[i].pos.y= model_spacecraft.pos.y;
+
+
+
+	}
+
+}
+void drawComets() {
+	int numComets = 12;
+	float viewWidth = 780;
+	float spacing = viewWidth / numComets;
+
+	for (int i = 0; i < numComets && commets[i]==1 ; i++) {
+		
+		glPushMatrix();
+		glScalef(0.2, 0.2, 0.2);
+		model_commet[i].Draw();
+		glPopMatrix();
+		
+
+	}
+}
+void playerHitComet() {
+	for (int i = 0; i < 12 && commets[i] == 1; i++) {
+		float posX = model_commet[i].pos.x;
+		float posY = model_commet[i].pos.y;
+		float posZ = model_commet[i].pos.z;
+
+
+		if (
+			(abs(posX- (50 + model_spacecraft.pos.x)) <= 5 && abs(posY - (50 + model_spacecraft.pos.y)) <= 3 && abs(posZ- 100) <= 10)
+			||
+			(abs(posX - (50 + model_spacecraft.pos.x)) <= 15 && abs(posY - (50 + model_spacecraft.pos.y)) <= 2 && abs(posZ - 103) <= 5)
+			) {
+			cout << 'here';
+
+		}
+
+
+	}
+
+
+	
 }
 
 void setupLights() {
@@ -239,12 +305,53 @@ void setupCamera() {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glLoadIdentity();
-	gluPerspective(60, 640 / 480, 0.001, 100);
+	gluPerspective(fovy, aspectRatio, zNear, zFar);
+
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	camera.look();
 }
+void print(float x, float y, float z, float r, float g, float b, char* string)
+{
+	glPushMatrix();
+	glColor3f(r, g, b);
+	int len, i;
+
+	//set the position of the text in the window using the x and y coordinates
+	glRasterPos3f(x, y, z);
+
+	//get the length of the string to display
+	len = (int)strlen(string);
+	//loop to display character by character
+	for (i = 0; i < len; i++)
+	{
+		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, string[i]);
+	}
+	glPopMatrix();
+	glColor3f(1, 1, 1);
+
+}
+void printHealth(float x, float y, float z, float r, float g, float b) {
+	std::ostringstream ss;
+	ss << health;
+
+	string h = "Health : " + ss.str();
+	char hChar[1024];
+	strncpy(hChar, h.c_str(), sizeof(hChar));
+	hChar[sizeof(hChar) - 1] = 0;
+	print(x, y, z, r, g, b, hChar);
+
+}
+void timer(int value) {
+	// Redraw the scene
+	glutPostRedisplay();
+
+	// Restart the timer
+	int timerInterval = 1000; // 1000 milliseconds = 1 second
+	glutTimerFunc(timerInterval, timer, 0);
+}
+
 
 void Display() {
 	setupCamera();
@@ -253,11 +360,17 @@ void Display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-	// Draw house Model
+	// Draw spacecraft Model
 	glPushMatrix();
 	glScalef(0.1, 0.1, 0.1);
-	model_house.Draw();
+	model_spacecraft.Draw();
 	glPopMatrix();
+	glPushMatrix();
+	glPushMatrix();
+	drawComets();
+	glPopMatrix();
+
+
 
 	//sky box
 	glPushMatrix();
@@ -322,7 +435,20 @@ void Keyboard(unsigned char key, int x, int y) {
 		camera.setSideView();
 		break;
 	case 'w':
-		model_house.pos.z=model_house.pos.z+1;
+		model_spacecraft.pos.z=model_spacecraft.pos.z-1;
+		break;
+
+	case 'a':
+		model_spacecraft.pos.x= model_spacecraft.pos.x - 1;
+		break;
+	case 's':
+		model_spacecraft.pos.z = model_spacecraft.pos.z + 1;
+		break;
+	case 'd':
+		model_spacecraft.pos.x = model_spacecraft.pos.x + 1;
+		break;
+	case 'e':
+		model_spacecraft.rot.z = model_spacecraft.rot.z + 15.0f;
 		break;
 
 	case GLUT_KEY_ESCAPE:
@@ -351,6 +477,16 @@ void Special(int key, int x, int y) {
 
 	glutPostRedisplay();
 }
+void init() {
+
+	initComets();
+
+
+
+
+
+
+}
 
 void main(int argc, char** argv) {
 	glutInit(&argc, argv);
@@ -362,7 +498,7 @@ void main(int argc, char** argv) {
 	glutDisplayFunc(Display);
 	glutKeyboardFunc(Keyboard);
 	glutSpecialFunc(Special);
-
+	srand(time(NULL));
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
 	glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 
@@ -373,6 +509,8 @@ void main(int argc, char** argv) {
 	glEnable(GL_COLOR_MATERIAL);
 
 	glShadeModel(GL_SMOOTH);
+	int timerInterval = 1000; // 1000 milliseconds = 1 second
+	glutTimerFunc(timerInterval, timer, 0);
 
 	LoadAssets();
 	glEnable(GL_DEPTH_TEST);
@@ -383,7 +521,6 @@ void main(int argc, char** argv) {
 
 	glShadeModel(GL_SMOOTH);
 
-	glutMainLoop();
-
+	init();
 	glutMainLoop();
 }
