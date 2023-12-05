@@ -10,8 +10,12 @@
 using namespace std;
 int WIDTH = 1280;
 int HEIGHT = 720;
+int Fuel = 30;
 
 GLuint tex;
+GLuint fuel_tex;
+GLuint jrocket_tex;
+
 char title[] = "3D Model Loader Sample";
 
 // 3D Projection Options
@@ -21,18 +25,35 @@ GLdouble zNear = 0.1;
 GLdouble zFar = 1000;
 
 
-
 // Model Variables
 Model_3DS model_spacecraft;
-Model_3DS model_commet [12];
+Model_3DS model_commet[12];
 int commets[12] = { 1,1,1,1,1,1,1,1,1,1,1,1 };
 Model_3DS model_tree;
+Model_3DS model_tank;
+Model_3DS model_speedBooster;
+
+
+
 
 int score;
-int health=12;
-
+int health = 12;
+int playerSpeed = 10;
+int boosterX = -400;
+int boosterY = 0;
+int boosterZ = 0;
+int tankX = 90;
+int tankY = 0;
+int tankZ = 0;
+int playerX = model_spacecraft.pos.x;
+int playerY = model_spacecraft.pos.y;
+int playerZ = model_spacecraft.pos.z;
+enum GameState { PLAYING, GAME_OVER_WIN, GAME_OVER_LOSE };
+GameState gameState = PLAYING;
 // Textures
 GLTexture tex_ground;
+
+
 
 #define GLUT_KEY_ESCAPE 27
 #define DEG2RAD(a) (a * 0.0174532925)
@@ -179,7 +200,26 @@ void InitMaterial()
 	glMaterialfv(GL_FRONT, GL_SHININESS, shininess);
 }
 
+void print(float x, float y, float z, float r, float g, float b, char* string)
+{
+	glPushMatrix();
+	glColor3f(r, g, b);
+	int len, i;
 
+	//set the position of the text in the window using the x and y coordinates
+	glRasterPos3f(x, y, z);
+
+	//get the length of the string to display
+	len = (int)strlen(string);
+	//loop to display character by character
+	for (i = 0; i < len; i++)
+	{
+		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, string[i]);
+	}
+	glPopMatrix();
+	glColor3f(1, 1, 1);
+
+}
 
 void drawWall(double thickness) {
 	glPushMatrix();
@@ -221,14 +261,16 @@ void LoadAssets()
 {
 	// Loading Model files
 	model_spacecraft.Load("Models/spacecraft/spacecraft.3DS");
-	for (int i=0; i < 12; i++) {
+	for (int i = 0; i < 12; i++) {
 		model_commet[i].Load("Models/commet/asteroid 3DS.3DS");
 	}
 	model_tree.Load("Models/tree/Tree1.3ds");
-
+	model_tank.Load("Models/fuelTank/tank.3DS");
+	model_speedBooster.Load("Models/speedBooster/cartoon.3ds");
 	// Loading texture files
 	//tex_ground.Load("Textures/universe.bmp");
 	loadBMP(&tex, "Textures/universe.bmp", true);
+	//loadBMP(&fuel_tex, "Textures/fuel.bmp", true);
 }
 void initComets() {
 	for (int i = 0; i < 12 && commets[i] == 1; i++) {
@@ -241,7 +283,7 @@ void initComets() {
 		model_commet[i].lit = true;
 		model_commet[i].pos.x = xPosition;
 		model_commet[i].pos.z = zPosition;
-		model_commet[i].pos.y= model_spacecraft.pos.y;
+		model_commet[i].pos.y = model_spacecraft.pos.y;
 
 
 
@@ -253,13 +295,13 @@ void drawComets() {
 	float viewWidth = 780;
 	float spacing = viewWidth / numComets;
 
-	for (int i = 0; i < numComets && commets[i]==1 ; i++) {
-		
+	for (int i = 0; i < numComets && commets[i] == 1; i++) {
+
 		glPushMatrix();
 		glScalef(0.2, 0.2, 0.2);
 		model_commet[i].Draw();
 		glPopMatrix();
-		
+
 
 	}
 }
@@ -271,7 +313,7 @@ void playerHitComet() {
 
 
 		if (
-			(abs(posX- (50 + model_spacecraft.pos.x)) <= 5 && abs(posY - (50 + model_spacecraft.pos.y)) <= 3 && abs(posZ- 100) <= 10)
+			(abs(posX - (50 + model_spacecraft.pos.x)) <= 5 && abs(posY - (50 + model_spacecraft.pos.y)) <= 3 && abs(posZ - 100) <= 10)
 			||
 			(abs(posX - (50 + model_spacecraft.pos.x)) <= 15 && abs(posY - (50 + model_spacecraft.pos.y)) <= 2 && abs(posZ - 103) <= 5)
 			) {
@@ -282,8 +324,109 @@ void playerHitComet() {
 
 	}
 
+}
 
+
+bool checkCollision(double playerX, double playerY, double playerZ, double tankX, double tankY, double tankZ) {
+	// Calculate the differences between player and tank positions
+	double dx = tankX - playerX;
+	double dy = tankY - playerY;
+	double dz = tankZ - playerZ;
+
+	// Calculate the distance between player and tank using Euclidean distance formula
+	double distance = sqrt(dx * dx + dy * dy + dz * dz);
+
+	// Define the collision thresholds for each dimension
+	double collisionThresholdX = 15.0; // Adjust this value according to your game's units
+	double collisionThresholdY = 5.0;  // Adjust this value according to your game's units
+	double collisionThresholdZ = 8.0;  // Adjust this value according to your game's units
+
+	// Check if the distance between player and tank is within the collision thresholds
+	if (distance <= collisionThresholdX && abs(dy) <= collisionThresholdY && abs(dz) <= collisionThresholdZ) {
+		return true; // Collision detected
+	}
+
+	return false; // No collision
+}
+
+void drawTank() {
+
+	// Draw tank Model
+	glPushMatrix();
+	glScalef(0.2, 0.08, 0.2);
+	model_tank.Draw();
+	glPopMatrix();
+}
+
+void tankCollided() {
+
+	bool collided = checkCollision(playerX, playerY, playerZ, tankX, tankY, tankZ);
+	if (collided) {
+		tankX = -100000;
+		tankY = -100000;
+		tankZ = -100000;
+		Fuel = 30;
+	}
+}
+void drawBooster() {
+	// Draw Booster Model
+	glPushMatrix();
+	glScalef(0.01, 0.01, 0.01);
+	model_speedBooster.Draw();
+	glPopMatrix();
+
+}
+void boosterCollided() {
+
+	bool collided = checkCollision(playerX, playerY, playerZ, boosterX, boosterY, boosterZ);
+	if (collided) {
+		boosterX = -100000;
+		boosterY = -100000;
+		boosterZ= -100000;
+		playerSpeed = 50;
 	
+	}
+}
+
+void fuelDuration() {
+	int i = 0;
+	for (i; i < 50; i++) {
+		Fuel--;
+		if (Fuel== 0)
+			gameState = GAME_OVER_LOSE;
+		break;
+	}
+
+}
+
+
+void drawLoseScreen() {
+
+	glClearColor(1, 0, 0, 0);
+	print(44, 70, 100, 1, 1, 1, "Game Over!");
+	//printScore(45, 65, 100, 1, 1, 1);
+	print(40, 60, 100, 1, 1, 1, "Press Enter to Play Again");
+}
+void drawWinScreen() {
+
+	glClearColor(0, 1, 0, 0);
+	print(40, 70, 100, 1, 1, 1, "Congratulations You won !");
+	//printScore(46, 65, 100, 1, 1, 1);
+	print(40, 60, 100, 1, 1, 1, "Press Enter to Play Again");
+}
+
+void gameScreen() {
+	switch (gameState) {
+	case PLAYING://normal
+		break;
+	case GAME_OVER_WIN:
+		drawWinScreen();
+		break;
+	case GAME_OVER_LOSE:
+		drawLoseScreen();
+		break;
+	}
+
 }
 
 void setupLights() {
@@ -312,31 +455,24 @@ void setupCamera() {
 	glLoadIdentity();
 	camera.look();
 }
-void print(float x, float y, float z, float r, float g, float b, char* string)
-{
-	glPushMatrix();
-	glColor3f(r, g, b);
-	int len, i;
 
-	//set the position of the text in the window using the x and y coordinates
-	glRasterPos3f(x, y, z);
 
-	//get the length of the string to display
-	len = (int)strlen(string);
-	//loop to display character by character
-	for (i = 0; i < len; i++)
-	{
-		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, string[i]);
-	}
-	glPopMatrix();
-	glColor3f(1, 1, 1);
-
-}
 void printHealth(float x, float y, float z, float r, float g, float b) {
 	std::ostringstream ss;
 	ss << health;
 
 	string h = "Health : " + ss.str();
+	char hChar[1024];
+	strncpy(hChar, h.c_str(), sizeof(hChar));
+	hChar[sizeof(hChar) - 1] = 0;
+	print(x, y, z, r, g, b, hChar);
+
+}
+void printFuel(float x, float y, float z, float r, float g, float b) {
+	std::ostringstream ss;
+	ss << Fuel;
+
+	string h = "Fuel : " + ss.str();
 	char hChar[1024];
 	strncpy(hChar, h.c_str(), sizeof(hChar));
 	hChar[sizeof(hChar) - 1] = 0;
@@ -359,6 +495,20 @@ void Display() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	drawTank();
+	model_tank.pos.x = tankX;
+	model_tank.pos.y = tankY;
+	model_tank.pos.z = tankZ;
+	drawBooster();
+	model_speedBooster.pos.x = boosterX;
+	model_speedBooster.pos.y = boosterY;
+	model_speedBooster.pos.z = boosterZ;
+
+	tankCollided();
+	boosterCollided();
+	fuelDuration();
+	printFuel(-40, 20, 0, 1, 0, 0);
+	gameScreen();
 
 	// Draw spacecraft Model
 	glPushMatrix();
@@ -384,7 +534,7 @@ void Display() {
 	gluQuadricNormals(qobj, GL_SMOOTH);
 	gluSphere(qobj, 100, 100, 100);
 	gluDeleteQuadric(qobj);
-	
+
 
 	glPopMatrix();
 	glFlush();
@@ -438,7 +588,7 @@ void Keyboard(unsigned char key, int x, int y) {
 		camera.setSideView();
 		break;
 	case 'w':
-		model_spacecraft.pos.z=model_spacecraft.pos.z-10;
+		model_spacecraft.pos.z = model_spacecraft.pos.z - playerSpeed;
 		break;
 
 	case 'a':
@@ -446,17 +596,17 @@ void Keyboard(unsigned char key, int x, int y) {
 			model_spacecraft.rot.z = model_spacecraft.rot.z + 15.0f;
 			rotateLeft = true; // Set the flag to true to indicate rotation occurred
 		}
-		model_spacecraft.pos.x = model_spacecraft.pos.x - 10;
+		model_spacecraft.pos.x = model_spacecraft.pos.x - playerSpeed;
 		break;
 	case 's':
-		model_spacecraft.pos.z = model_spacecraft.pos.z + 10;
+		model_spacecraft.pos.z = model_spacecraft.pos.z + playerSpeed;
 		break;
 	case 'd':
 		if (!rotateRight) {
 			model_spacecraft.rot.z = model_spacecraft.rot.z - 15.0f;
 			rotateRight = true; // Set the flag to true to indicate rotation occurred
 		}
-		model_spacecraft.pos.x = model_spacecraft.pos.x + 10;
+		model_spacecraft.pos.x = model_spacecraft.pos.x + playerSpeed;
 		break;
 	case 'e':
 		model_spacecraft.rot.z = model_spacecraft.rot.z + 15.0f;
