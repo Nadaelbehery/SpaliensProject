@@ -266,7 +266,7 @@ void LoadAssets()
 	}
 	model_tree.Load("Models/tree/Tree1.3ds");
 	model_tank.Load("Models/fuelTank/tank.3DS");
-	model_speedBooster.Load("Models/speedBooster/cartoon.3ds");
+	model_speedBooster.Load("Models/speedBooster/Chuchu Rocket.3ds");
 	// Loading texture files
 	//tex_ground.Load("Textures/universe.bmp");
 	loadBMP(&tex, "Textures/universe.bmp", true);
@@ -495,7 +495,7 @@ void Display() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	drawTank();
+	//drawTank();
 	model_tank.pos.x = tankX;
 	model_tank.pos.y = tankY;
 	model_tank.pos.z = tankZ;
