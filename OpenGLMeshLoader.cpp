@@ -19,10 +19,10 @@ GLuint jrocket_tex;
 char title[] = "3D Model Loader Sample";
 
 // 3D Projection Options
-GLdouble fovy = 45.0;
+GLdouble fovy = 35.0;
 GLdouble aspectRatio = (GLdouble)WIDTH / (GLdouble)HEIGHT;
 GLdouble zNear = 0.1;
-GLdouble zFar = 1000;
+GLdouble zFar = 10000000;
 
 
 // Model Variables
@@ -269,7 +269,7 @@ void LoadAssets()
 	model_speedBooster.Load("Models/speedBooster/Chuchu Rocket.3ds");
 	// Loading texture files
 	//tex_ground.Load("Textures/universe.bmp");
-	loadBMP(&tex, "Textures/universe.bmp", true);
+	loadBMP(&tex, "Textures/nightSky.bmp", true);
 	//loadBMP(&fuel_tex, "Textures/fuel.bmp", true);
 }
 void initComets() {
@@ -532,7 +532,7 @@ void Display() {
 	glBindTexture(GL_TEXTURE_2D, tex);
 	gluQuadricTexture(qobj, true);
 	gluQuadricNormals(qobj, GL_SMOOTH);
-	gluSphere(qobj, 100, 100, 100);
+	gluSphere(qobj, 1000, 100, 1000);
 	gluDeleteQuadric(qobj);
 
 
@@ -588,10 +588,14 @@ void Keyboard(unsigned char key, int x, int y) {
 		camera.setSideView();
 		break;
 	case 'w':
+		camera.moveZ(2 * d);
+		camera.moveY(d / 2);
 		model_spacecraft.pos.z = model_spacecraft.pos.z - playerSpeed;
 		break;
 
 	case 'a':
+		camera.moveX(2 * d);
+
 		if (!rotateLeft) {
 			model_spacecraft.rot.z = model_spacecraft.rot.z + 15.0f;
 			rotateLeft = true; // Set the flag to true to indicate rotation occurred
@@ -599,9 +603,13 @@ void Keyboard(unsigned char key, int x, int y) {
 		model_spacecraft.pos.x = model_spacecraft.pos.x - playerSpeed;
 		break;
 	case 's':
+		camera.moveZ(-2 * d);
+		camera.moveY(-d / 2);
 		model_spacecraft.pos.z = model_spacecraft.pos.z + playerSpeed;
 		break;
 	case 'd':
+		camera.moveX(-2 * d);
+
 		if (!rotateRight) {
 			model_spacecraft.rot.z = model_spacecraft.rot.z - 15.0f;
 			rotateRight = true; // Set the flag to true to indicate rotation occurred
