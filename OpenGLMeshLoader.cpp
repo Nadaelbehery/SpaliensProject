@@ -39,7 +39,7 @@ Model_3DS model_speedBooster;
 int score;
 int health = 12;
 int playerSpeed = 10;
-int boosterX = -400;
+int boosterX = 0;
 int boosterY = 0;
 int boosterZ = 0;
 int tankX = 90;
@@ -266,7 +266,7 @@ void LoadAssets()
 	}
 	model_tree.Load("Models/tree/Tree1.3ds");
 	model_tank.Load("Models/fuelTank/tank.3DS");
-	model_speedBooster.Load("Models/speedBooster/Chuchu Rocket.3ds");
+	model_speedBooster.Load("Models/speedBooster/Voiture_SPEED-RACER_ blanc-rouge-noir_(réf ; 8159).3ds");
 	// Loading texture files
 	//tex_ground.Load("Textures/universe.bmp");
 	loadBMP(&tex, "Textures/nightSky.bmp", true);
