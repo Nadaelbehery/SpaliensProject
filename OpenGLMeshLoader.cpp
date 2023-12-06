@@ -266,7 +266,7 @@ void LoadAssets()
 	}
 	model_tree.Load("Models/tree/Tree1.3ds");
 	model_tank.Load("Models/fuelTank/tank.3DS");
-	model_speedBooster.Load("Models/speedBooster/Voiture_SPEED-RACER_ blanc-rouge-noir_(réf ; 8159).3ds");
+	//model_speedBooster.Load("Models/speedBooster/Voiture_SPEED-RACER_ blanc-rouge-noir_(réf ; 8159).3ds");
 	// Loading texture files
 	//tex_ground.Load("Textures/universe.bmp");
 	loadBMP(&tex, "Textures/nightSky.bmp", true);
@@ -274,24 +274,23 @@ void LoadAssets()
 }
 void initComets() {
 	for (int i = 0; i < 12 && commets[i] == 1; i++) {
-		float xPosition = 2 + (rand() % 1000); // Calculate x position based on spacing
-		float zPosition = 2 + (rand() % 1000);
+		
+		float xPosition = -1000 + (rand() % 3000); // Calculate x position based on spacing
+		float zPosition = -3000 + (rand() % 3000);
 		glPushMatrix();
 		glScalef(0.2, 0.2, 0.2);
 		model_commet[i].Draw();
 		glPopMatrix();
 		model_commet[i].lit = true;
+		
 		model_commet[i].pos.x = xPosition;
-		model_commet[i].pos.z = zPosition;
+		model_commet[i].pos.z = zPosition - model_spacecraft.pos.z;
 		model_commet[i].pos.y = model_spacecraft.pos.y;
-
-
-
 	}
-
 }
+
 void drawComets() {
-	int numComets = 12;
+	int numComets = 1;
 	float viewWidth = 780;
 	float spacing = viewWidth / numComets;
 
@@ -306,18 +305,36 @@ void drawComets() {
 	}
 }
 void playerHitComet() {
-	for (int i = 0; i < 12 && commets[i] == 1; i++) {
+	cout << "X player" << model_spacecraft.pos.x;
+	cout << "\n";
+
+	cout << "Y player " << model_spacecraft.pos.y;
+	cout << "\n";
+
+	cout << "Z player " << model_spacecraft.pos.z;
+	cout << "\n";
+	for (int i = 0; i < 1 && commets[i] == 1; i++) {
 		float posX = model_commet[i].pos.x;
 		float posY = model_commet[i].pos.y;
 		float posZ = model_commet[i].pos.z;
+		cout <<"X" << posX;
+		cout << "\n";
+
+		cout << "Y" << posY;
+		cout << "\n";
+
+		cout <<"Z" << posZ;
+		cout << "\n";
+
+
 
 
 		if (
-			(abs(posX - (50 + model_spacecraft.pos.x)) <= 5 && abs(posY - (50 + model_spacecraft.pos.y)) <= 3 && abs(posZ - 100) <= 10)
-			||
-			(abs(posX - (50 + model_spacecraft.pos.x)) <= 15 && abs(posY - (50 + model_spacecraft.pos.y)) <= 2 && abs(posZ - 103) <= 5)
-			) {
-			cout << 'here';
+			( abs(abs(model_spacecraft.pos.z)-abs(posZ))<=722)) {
+			cout << "here";
+			PlaySound(TEXT("coin.wav"), NULL, SND_ASYNC);
+
+			//commets[i] = 0;
 
 		}
 
@@ -588,9 +605,10 @@ void Keyboard(unsigned char key, int x, int y) {
 		camera.setSideView();
 		break;
 	case 'w':
-		camera.moveZ(2 * d);
+		camera.moveZ(2*d);//needs to be adjusted based on player speed
 		camera.moveY(d / 2);
 		model_spacecraft.pos.z = model_spacecraft.pos.z - playerSpeed;
+		playerHitComet();
 		break;
 
 	case 'a':
