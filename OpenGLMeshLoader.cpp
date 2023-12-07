@@ -14,6 +14,7 @@ int Fuel = 30;
 
 GLuint tex;
 GLuint fuel_tex;
+GLuint moon_tex;
 GLuint jrocket_tex;
 
 char title[] = "3D Model Loader Sample";
@@ -31,6 +32,7 @@ Model_3DS model_commet[12];
 int commets[12] = { 1,1,1,1,1,1,1,1,1,1,1,1 };
 Model_3DS model_tree;
 Model_3DS model_tank;
+Model_3DS model_moon;
 Model_3DS model_speedBooster;
 
 
@@ -265,12 +267,14 @@ void LoadAssets()
 		model_commet[i].Load("Models/commet/asteroid 3DS.3DS");
 	}
 	model_tree.Load("Models/tree/Tree1.3ds");
-	//model_tank.Load("Models/fuelTank/uploads_files_3640174_jerrycan_1.3ds");
+	/*model_moon.Load("Models/MoonZ/moon.3ds");
+	model_tank.Load("Models/fuelTank/uploads_files_3640174_jerrycan_1.3ds");*/
 	//model_speedBooster.Load("Models/speedBooster/uploads_files_1914765_Rocket.3ds");
 	// Loading texture files
 	//tex_ground.Load("Textures/universe.bmp");
 	loadBMP(&tex, "Textures/nightSky.bmp", true);
-	//loadBMP(&fuel_tex, "Textures/fuel.bmp", true);
+	loadBMP(&moon_tex, "Textures/moon.bmp", true);
+	/*loadBMP(&fuel_tex, "Textures/fuel.bmp", true);*/
 }
 void initComets() {
 	for (int i = 0; i < 12 && commets[i] == 1; i++) {
@@ -372,6 +376,30 @@ void drawTank() {
 	glPushMatrix();
 	glScalef(0.2, 0.15, 0.2);
 	model_tank.Draw();
+	glPopMatrix();
+}
+
+float moonRotationAngle = 0.0f;
+
+void drawMoon() {
+	glPushMatrix();
+
+	GLUquadricObj* qobj = gluNewQuadric();
+
+	glTranslated(0, 0, -470);
+
+	glRotated(moonRotationAngle, 0, 1, 0);
+
+	glBindTexture(GL_TEXTURE_2D, moon_tex);
+
+	gluQuadricTexture(qobj, true);
+
+	gluQuadricNormals(qobj, GL_SMOOTH);
+
+	gluSphere(qobj, 10, 50, 50);  
+
+	gluDeleteQuadric(qobj);
+
 	glPopMatrix();
 }
 
@@ -513,6 +541,8 @@ void Display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	drawTank();
+	moonRotationAngle += 1.5f;
+	drawMoon();
 	model_tank.pos.x = tankX;
 	model_tank.pos.y = tankY;
 	model_tank.pos.z = tankZ;
