@@ -39,12 +39,12 @@ Model_3DS model_speedBooster;
 int score;
 int health = 12;
 int playerSpeed = 10;
-int boosterX = 0;
+int boosterX = 400;
 int boosterY = 0;
-int boosterZ = 0;
-int tankX = 90;
+int boosterZ = -400;
+int tankX = 0;
 int tankY = 0;
-int tankZ = 0;
+int tankZ = -400;
 int playerX = model_spacecraft.pos.x;
 int playerY = model_spacecraft.pos.y;
 int playerZ = model_spacecraft.pos.z;
@@ -265,8 +265,8 @@ void LoadAssets()
 		model_commet[i].Load("Models/commet/asteroid 3DS.3DS");
 	}
 	model_tree.Load("Models/tree/Tree1.3ds");
-	model_tank.Load("Models/fuelTank/tank.3DS");
-	//model_speedBooster.Load("Models/speedBooster/Voiture_SPEED-RACER_ blanc-rouge-noir_(réf ; 8159).3ds");
+	//model_tank.Load("Models/fuelTank/uploads_files_3640174_jerrycan_1.3ds");
+	//model_speedBooster.Load("Models/speedBooster/uploads_files_1914765_Rocket.3ds");
 	// Loading texture files
 	//tex_ground.Load("Textures/universe.bmp");
 	loadBMP(&tex, "Textures/nightSky.bmp", true);
@@ -274,7 +274,7 @@ void LoadAssets()
 }
 void initComets() {
 	for (int i = 0; i < 12 && commets[i] == 1; i++) {
-		
+
 		float xPosition = -1000 + (rand() % 3000); // Calculate x position based on spacing
 		float zPosition = -3000 + (rand() % 3000);
 		glPushMatrix();
@@ -282,7 +282,7 @@ void initComets() {
 		model_commet[i].Draw();
 		glPopMatrix();
 		model_commet[i].lit = true;
-		
+
 		model_commet[i].pos.x = xPosition;
 		model_commet[i].pos.z = zPosition - model_spacecraft.pos.z;
 		model_commet[i].pos.y = model_spacecraft.pos.y;
@@ -317,20 +317,20 @@ void playerHitComet() {
 		float posX = model_commet[i].pos.x;
 		float posY = model_commet[i].pos.y;
 		float posZ = model_commet[i].pos.z;
-		cout <<"X" << posX;
+		cout << "X" << posX;
 		cout << "\n";
 
 		cout << "Y" << posY;
 		cout << "\n";
 
-		cout <<"Z" << posZ;
+		cout << "Z" << posZ;
 		cout << "\n";
 
 
 
 
 		if (
-			( abs(abs(model_spacecraft.pos.z)-abs(posZ))<=722)) {
+			(abs(abs(model_spacecraft.pos.z) - abs(posZ)) <= 722)) {
 			cout << "here";
 			PlaySound(TEXT("coin.wav"), NULL, SND_ASYNC);
 
@@ -370,7 +370,7 @@ void drawTank() {
 
 	// Draw tank Model
 	glPushMatrix();
-	glScalef(0.2, 0.08, 0.2);
+	glScalef(0.2, 0.15, 0.2);
 	model_tank.Draw();
 	glPopMatrix();
 }
@@ -388,7 +388,7 @@ void tankCollided() {
 void drawBooster() {
 	// Draw Booster Model
 	glPushMatrix();
-	glScalef(0.01, 0.01, 0.01);
+	glScalef(0.2, 0.05, 0.2);
 	model_speedBooster.Draw();
 	glPopMatrix();
 
@@ -399,9 +399,9 @@ void boosterCollided() {
 	if (collided) {
 		boosterX = -100000;
 		boosterY = -100000;
-		boosterZ= -100000;
+		boosterZ = -100000;
 		playerSpeed = 50;
-	
+
 	}
 }
 
@@ -409,7 +409,7 @@ void fuelDuration() {
 	int i = 0;
 	for (i; i < 50; i++) {
 		Fuel--;
-		if (Fuel== 0)
+		if (Fuel == 0)
 			gameState = GAME_OVER_LOSE;
 		break;
 	}
@@ -512,7 +512,7 @@ void Display() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	//drawTank();
+	drawTank();
 	model_tank.pos.x = tankX;
 	model_tank.pos.y = tankY;
 	model_tank.pos.z = tankZ;
@@ -522,7 +522,7 @@ void Display() {
 	model_speedBooster.pos.z = boosterZ;
 
 	tankCollided();
-	boosterCollided();
+	//boosterCollided();
 	fuelDuration();
 	printFuel(-40, 20, 0, 1, 0, 0);
 	gameScreen();
@@ -605,7 +605,7 @@ void Keyboard(unsigned char key, int x, int y) {
 		camera.setSideView();
 		break;
 	case 'w':
-		camera.moveZ(2*d);//needs to be adjusted based on player speed
+		camera.moveZ(2 * d);//needs to be adjusted based on player speed
 		camera.moveY(d / 2);
 		model_spacecraft.pos.z = model_spacecraft.pos.z - playerSpeed;
 		playerHitComet();
@@ -699,7 +699,7 @@ void main(int argc, char** argv) {
 	glutInitWindowSize(640, 480);
 	glutInitWindowPosition(50, 50);
 
-	glutCreateWindow("Lab 5");
+	glutCreateWindow("Spaliens");
 	glutDisplayFunc(Display);
 	glutKeyboardFunc(Keyboard);
 	glutKeyboardUpFunc(KeyUp);  // Register KeyUp function
