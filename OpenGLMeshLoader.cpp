@@ -29,6 +29,7 @@ GLdouble zFar = 10000000;
 // Model Variables
 Model_3DS model_spacecraft;
 Model_3DS model_commet[12];
+float commetsPosition[12][2] = { {-50,-100},{40,-200} ,{-100,-123} ,{-200,-400} ,{99,-480} ,{40,-700} ,{20,-330} ,{-20,-300} ,{80,-1000} ,{0,-300} ,{10,-450} ,{-10,-450} };
 int commets[12] = { 1,1,1,1,1,1,1,1,1,1,1,1 };
 Model_3DS model_tree;
 Model_3DS model_tank;
@@ -47,9 +48,10 @@ int boosterZ = -400;
 int tankX = 0;
 int tankY = 0;
 int tankZ = -400;
-int playerX = model_spacecraft.pos.x;
-int playerY = model_spacecraft.pos.y;
-int playerZ = model_spacecraft.pos.z;
+float playerX = 0;
+float playerY = 0;
+float playerZ = 0;
+
 enum GameState { PLAYING, GAME_OVER_WIN, GAME_OVER_LOSE };
 GameState gameState = PLAYING;
 // Textures
@@ -279,48 +281,55 @@ void LoadAssets()
 void initComets() {
 	for (int i = 0; i < 12 && commets[i] == 1; i++) {
 
-		float xPosition = -1000 + (rand() % 3000); // Calculate x position based on spacing
-		float zPosition = -3000 + (rand() % 3000);
+		//float xPosition = -100 + (rand() % 1); // Calculate x position based on spacing
+		//float zPosition = -100 + (rand() % 1);
+		float xPosition = commetsPosition[i][0];
+		float zPosition = commetsPosition[i][1];
+
+		//model_commet[i].pos.z = zPosition - model_spacecraft.pos.z;
+		
+		//model_commet[i].pos.y = model_spacecraft.pos.y;
 		glPushMatrix();
-		glScalef(0.2, 0.2, 0.2);
+		glTranslatef(xPosition, 0, zPosition);
+		//glScalef(0.2, 0.2, 0.2);
 		model_commet[i].Draw();
 		glPopMatrix();
 		model_commet[i].lit = true;
 
-		model_commet[i].pos.x = xPosition;
-		model_commet[i].pos.z = zPosition - model_spacecraft.pos.z;
-		model_commet[i].pos.y = model_spacecraft.pos.y;
+
 	}
 }
 
+
 void drawComets() {
-	int numComets = 1;
+	int numComets = 12;
 	float viewWidth = 780;
 	float spacing = viewWidth / numComets;
 
 	for (int i = 0; i < numComets && commets[i] == 1; i++) {
 
 		glPushMatrix();
-		glScalef(0.2, 0.2, 0.2);
+		//glScalef(0.2, 0.2, 0.2);
+		glTranslatef(commetsPosition[i][0], 0, commetsPosition[i][1]);
 		model_commet[i].Draw();
 		glPopMatrix();
 
 
 	}
 }
-void playerHitComet() {
-	cout << "X player" << model_spacecraft.pos.x;
+BOOLEAN playerHitComet() {
+	cout << "X player" << playerX;
 	cout << "\n";
 
-	cout << "Y player " << model_spacecraft.pos.y;
+	cout << "Y player " << playerY;
 	cout << "\n";
 
-	cout << "Z player " << model_spacecraft.pos.z;
+	cout << "Z player " << playerZ;
 	cout << "\n";
-	for (int i = 0; i < 1 && commets[i] == 1; i++) {
-		float posX = model_commet[i].pos.x;
-		float posY = model_commet[i].pos.y;
-		float posZ = model_commet[i].pos.z;
+	for (int i = 0; i < 12 && commets[i] == 1; i++) {
+		float posX = commetsPosition[i][0];
+		float posY = 0;
+		float posZ = commetsPosition[i][1];
 		cout << "X" << posX;
 		cout << "\n";
 
@@ -334,18 +343,20 @@ void playerHitComet() {
 
 
 		if (
-			(abs(abs(model_spacecraft.pos.z) - abs(posZ)) <= 722)) {
+			(abs(abs(playerZ) - abs(posZ)) <= 33) && (abs(abs(playerX) - abs(posX)) <= 33)) {
 			cout << "here";
-			PlaySound(TEXT("coin.wav"), NULL, SND_ASYNC);
-
+			PlaySound(TEXT("cometHit.wav"), NULL, SND_ASYNC);
+			return true;
 			//commets[i] = 0;
 
 		}
 
 
 	}
+	return false;
 
 }
+
 
 
 bool checkCollision(double playerX, double playerY, double playerZ, double tankX, double tankY, double tankZ) {
@@ -559,6 +570,7 @@ void Display() {
 
 	// Draw spacecraft Model
 	glPushMatrix();
+	glTranslatef(playerX, playerY, playerZ);
 	glScalef(0.1, 0.1, 0.1);
 	model_spacecraft.Draw();
 	glPopMatrix();
@@ -566,6 +578,7 @@ void Display() {
 	glPushMatrix();
 	drawComets();
 	glPopMatrix();
+	glPushMatrix();
 
 
 
@@ -635,11 +648,17 @@ void Keyboard(unsigned char key, int x, int y) {
 		camera.setSideView();
 		break;
 	case 'w':
-		camera.moveZ(2 * d);//needs to be adjusted based on player speed
-		camera.moveY(d / 2);
-		model_spacecraft.pos.z = model_spacecraft.pos.z - playerSpeed;
-		playerHitComet();
+		if (!playerHitComet()) {
+			camera.moveZ(2 * d);//needs to be adjusted based on player speed
+			camera.moveY(d / 2);
+			//model_spacecraft.pos.z = model_spacecraft.pos.z - playerSpeed*0.1;
+
+			playerZ = playerZ - 1;
+		}
+		//model_spacecraft.pos.z = model_spacecraft.pos.z - playerSpeed;
+		//playerHitComet();
 		break;
+
 
 	case 'a':
 		camera.moveX(2 * d);
@@ -648,12 +667,16 @@ void Keyboard(unsigned char key, int x, int y) {
 			model_spacecraft.rot.z = model_spacecraft.rot.z + 15.0f;
 			rotateLeft = true; // Set the flag to true to indicate rotation occurred
 		}
-		model_spacecraft.pos.x = model_spacecraft.pos.x - playerSpeed;
+		//model_spacecraft.pos.x = model_spacecraft.pos.x - playerSpeed;
+		playerX = playerX - 1;
+
 		break;
 	case 's':
 		camera.moveZ(-2 * d);
 		camera.moveY(-d / 2);
-		model_spacecraft.pos.z = model_spacecraft.pos.z + playerSpeed;
+		playerZ = playerZ + 1;
+
+		//model_spacecraft.pos.z = model_spacecraft.pos.z + playerSpeed;
 		break;
 	case 'd':
 		camera.moveX(-2 * d);
@@ -662,7 +685,9 @@ void Keyboard(unsigned char key, int x, int y) {
 			model_spacecraft.rot.z = model_spacecraft.rot.z - 15.0f;
 			rotateRight = true; // Set the flag to true to indicate rotation occurred
 		}
-		model_spacecraft.pos.x = model_spacecraft.pos.x + playerSpeed;
+		//model_spacecraft.pos.x = model_spacecraft.pos.x + playerSpeed;
+		playerX = playerX + 1;
+
 		break;
 	case 'e':
 		model_spacecraft.rot.z = model_spacecraft.rot.z + 15.0f;
