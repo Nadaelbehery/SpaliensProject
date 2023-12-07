@@ -16,6 +16,7 @@ GLuint tex;
 GLuint fuel_tex;
 GLuint moon_tex;
 GLuint jrocket_tex;
+GLuint metal_tex;
 
 char title[] = "3D Model Loader Sample";
 
@@ -35,7 +36,7 @@ Model_3DS model_tree;
 Model_3DS model_tank;
 Model_3DS model_moon;
 Model_3DS model_speedBooster;
-
+Model_3DS model_alienship;
 
 
 
@@ -269,6 +270,7 @@ void LoadAssets()
 		model_commet[i].Load("Models/commet/asteroid 3DS.3DS");
 	}
 	model_tree.Load("Models/tree/Tree1.3ds");
+	model_alienship.Load("Models/spacecraft/alienship2.3DS");
 	/*model_moon.Load("Models/MoonZ/moon.3ds");
 	model_tank.Load("Models/fuelTank/uploads_files_3640174_jerrycan_1.3ds");*/
 	//model_speedBooster.Load("Models/speedBooster/uploads_files_1914765_Rocket.3ds");
@@ -276,6 +278,7 @@ void LoadAssets()
 	//tex_ground.Load("Textures/universe.bmp");
 	loadBMP(&tex, "Textures/nightSky.bmp", true);
 	loadBMP(&moon_tex, "Textures/moon.bmp", true);
+	loadBMP(&metal_tex, "Textures/moon.bmp", true);
 	/*loadBMP(&fuel_tex, "Textures/fuel.bmp", true);*/
 }
 void initComets() {
@@ -387,6 +390,37 @@ void drawTank() {
 	glPushMatrix();
 	glScalef(0.2, 0.15, 0.2);
 	model_tank.Draw();
+	glPopMatrix();
+}
+
+void drawAlienShip() {
+	// Push the matrix to save the current transformation state
+	glPushMatrix();
+
+	// Create a new quadric object
+	GLUquadricObj* qobj = gluNewQuadric();
+
+	// Scale, rotate, and translate the alien ship
+	glScalef(0.02, 0.02, 0.02);
+	glRotated(90, 1, 0, 0);
+	glTranslated(0, 7, 0);
+
+	// Bind the metal texture
+	glBindTexture(GL_TEXTURE_2D, metal_tex);
+
+	// Enable texture coordinate generation
+	gluQuadricTexture(qobj, true);
+
+	// Enable smooth shading
+	gluQuadricNormals(qobj, GL_SMOOTH);
+
+	// Draw the alien ship with the metal texture
+	model_alienship.Draw();
+
+	// Delete the quadric object
+	gluDeleteQuadric(qobj);
+
+	// Pop the matrix to restore the previous transformation state
 	glPopMatrix();
 }
 
@@ -554,6 +588,7 @@ void Display() {
 	drawTank();
 	moonRotationAngle += 1.5f;
 	drawMoon();
+	/*drawAlienShip();*/
 	model_tank.pos.x = tankX;
 	model_tank.pos.y = tankY;
 	model_tank.pos.z = tankZ;
