@@ -65,6 +65,7 @@ int tankZ = -200;
 float playerX = 0;
 float playerY = 0;
 float playerZ = 0;
+bool isCollision = false;
 
 enum GameState { PLAYING, GAME_OVER_WIN, GAME_OVER_LOSE };
 GameState gameState = PLAYING;
@@ -281,8 +282,8 @@ void drawJack() {
 	drawJackPart();
 	glPopMatrix();
 }
-void drawExplosion(float explosionX, float explosionY, float explosionZ) {
-	const int numSpheres = 12; // Number of spheres
+void drawExplosion() {
+	const int numSpheres = 30; // Number of spheres
 	const float spacing = 0.8f; // Spacing between spheres
 
 	float startOffset = -((numSpheres - 1) * spacing) / 2.0f; // Offset to center spheres
@@ -290,11 +291,13 @@ void drawExplosion(float explosionX, float explosionY, float explosionZ) {
 	for (int i = 0; i < numSpheres; ++i) {
 		glPushMatrix();
 		glColor3f(1.0f, 1.0f, 0.0f); // Yellow color
-		glTranslatef(explosionX + startOffset + i * spacing, explosionY, explosionZ); // Translate to the next position
-		glutSolidSphere(1.0f, 20, 20); // Render a yellow sphere (radius: 0.3)
+		glScalef(1.0, 1.0, 1.0);
+		glTranslatef(playerX + i, playerY, playerZ - 30); // Translate to the next position
+		glutSolidSphere(33.0, 20, 20); // Render a yellow sphere (radius: 0.3)
 		glPopMatrix();
 	}
 }
+
 void drawLaser() {
 	glPushMatrix();
 	glColor3f(1.0f, 0.0f, 0.0f); // Red color for the laser
@@ -463,10 +466,8 @@ BOOLEAN playerHitComet() {
 			cout << "CollisionZ" << posZ;
 			cout << "\n";
 			PlaySound(TEXT("cometHit.wav"), NULL, SND_ASYNC);
-			health--;
-			glPushMatrix();
-			drawExplosion(posX, posY, posZ);
-			glPopMatrix();
+			health = health - 1;
+			isCollision = true;
 			return true;
 			//commets[i] = 0;
 
@@ -724,6 +725,19 @@ void printFuel(float x, float y, float z, float r, float g, float b) {
 	print(x, y, z, r, g, b, hChar);
 
 }
+void displayHealth(float x, float y, float z, float r, float g, float b) {
+
+	std::ostringstream ss;
+	ss << health;
+
+	string h = "Health : " + ss.str();
+	char hChar[1024];
+	strncpy(hChar, h.c_str(), sizeof(hChar));
+	hChar[sizeof(hChar) - 1] = 0;
+	print(x, y, z, r, g, b, hChar);
+
+
+}
 void timer(int value) {
 	// Redraw the scene
 	glutPostRedisplay();
@@ -740,11 +754,7 @@ void Display() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	if (firstEnvironment) {
-		glPushMatrix();
-		glScalef(-1, 2.0, -1);
-		glRotatef(90, 1, 0, 0);
-		glutSolidCube(1.0);
-		glPopMatrix();
+		
 
 	   glPushMatrix();
        drawTank();
@@ -755,8 +765,6 @@ void Display() {
        tankCollided();
      //boosterCollided();
 		 fuelDuration();
-		printFuel(-40, 20, 0, 1, 0, 0);
-      gameScreen();
 		moonRotationAngle += 1.5f;
 		
 		
@@ -798,6 +806,23 @@ void Display() {
 		//glPushMatrix();
 		//drawLaser();
 		//glPopMatrix();
+		glPushMatrix();
+		glDisable(GL_LIGHTING);
+
+
+		glBindTexture(GL_TEXTURE_2D, 0); // prevents the color of the text from being changed
+		displayHealth(camera.eye.x - 1, camera.eye.y, camera.eye.z - 2, 1, 0, 0);
+		printFuel(camera.eye.x - 1, camera.eye.y - 0.05, camera.eye.z - 2, 1, 0, 0);
+		glEnable(GL_LIGHTING);
+		glPopMatrix();
+
+		if (isCollision) {
+			glPushMatrix();
+			drawExplosion();
+			glPopMatrix();
+			isCollision = false;
+
+		}
 	}
 	else {
 		//second environmet
@@ -832,9 +857,19 @@ void Display() {
 	}
 	if (isGameOver()) {
 		//display game over won/lose
+		glPushMatrix();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		char text[] = "Game Over. You Lost:(";
+		glBindTexture(GL_TEXTURE_2D, 0); // prevents the color of the text from being changed
+		glColor3f(1.0, 1.0, 1.0);
+		glRasterPos2f(-0.5, 0.0);
+		for (int i = 0; text[i] != '\0'; i++) {
+			glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, text[i]);
+		}
+		glPopMatrix();
 	}
 	glFlush();
-	//glutSwapBuffers();
+	glutSwapBuffers();
 }
 
 bool rotateLeft = false;
@@ -888,7 +923,7 @@ void Keyboard(unsigned char key, int x, int y) {
 		
 		if (!playerHitComet()) {
 			if (firstPerson) {
-				camera.moveZ( d/2);//needs to be adjusted based on player speed
+				camera.moveZ( 2*d);//needs to be adjusted based on player speed
 				//model_spacecraft.pos.z = model_spacecraft.pos.z - playerSpeed*0.1;
 
 				//playerZ = playerZ - 1;
@@ -949,7 +984,7 @@ void Keyboard(unsigned char key, int x, int y) {
 		break;
 	case 'l':
 		firstPerson = true;
-		camera.eye=Vector3f(playerX, playerY,  playerZ-20);
+		camera.eye=Vector3f(playerX, playerY, playerZ+5);
 		//camera.setFrontView();
 		break;
 	case 'm':
