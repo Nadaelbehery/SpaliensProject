@@ -265,6 +265,20 @@ void drawJack() {
 	drawJackPart();
 	glPopMatrix();
 }
+void drawExplosion(float explosionX, float explosionY, float explosionZ) {
+	const int numSpheres = 12; // Number of spheres
+	const float spacing = 0.8f; // Spacing between spheres
+
+	float startOffset = -((numSpheres - 1) * spacing) / 2.0f; // Offset to center spheres
+
+	for (int i = 0; i < numSpheres; ++i) {
+		glPushMatrix();
+		glColor3f(1.0f, 1.0f, 0.0f); // Yellow color
+		glTranslatef(explosionX + startOffset + i * spacing, explosionY, explosionZ); // Translate to the next position
+		glutSolidSphere(1.0f, 20, 20); // Render a yellow sphere (radius: 0.3)
+		glPopMatrix();
+	}
+}
 
 void LoadAssets()
 {
@@ -363,6 +377,9 @@ BOOLEAN playerHitComet() {
 			cout << "\n";
 			PlaySound(TEXT("cometHit.wav"), NULL, SND_ASYNC);
 			health--;
+			glPushMatrix();
+			drawExplosion(posX, posY, posZ);
+			glPopMatrix();
 			return true;
 			//commets[i] = 0;
 
@@ -630,10 +647,15 @@ void Display() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	if (firstEnvironment) {
+		glPushMatrix();
+		glScalef(-1, 2.0, -1);
+		glRotatef(90, 1, 0, 0);
+		glutSolidCube(1.0);
+		glPopMatrix();
 
 		drawTank();
 		moonRotationAngle += 1.5f;
-		drawMoon();
+		
 		/*drawAlienShip();*/
 		model_tank.pos.x = tankX;
 		model_tank.pos.y = tankY;
@@ -656,10 +678,8 @@ void Display() {
 		model_spacecraft.Draw();
 		glPopMatrix();
 		glPushMatrix();
-		glPushMatrix();
 		drawComets();
 		glPopMatrix();
-		glPushMatrix();
 
 
 
@@ -678,6 +698,9 @@ void Display() {
 
 
 		glPopMatrix();
+		glPushMatrix();
+		drawMoon();
+		glPopMatrix();
 	}
 	else {
 		//second environmet
@@ -687,7 +710,7 @@ void Display() {
 		//display game over won/lose
 	}
 	glFlush();
-	glutSwapBuffers();
+	//glutSwapBuffers();
 }
 
 bool rotateLeft = false;
