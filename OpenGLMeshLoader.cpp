@@ -30,7 +30,7 @@ GLdouble zFar = 10000000;
 // Model Variables
 Model_3DS model_spacecraft;
 Model_3DS model_commet[12];
-float commetsPosition[12][2] = { {-50,-100},{40,-200} ,{-100,-123} ,{-200,-400} ,{99,-480} ,{40,-700} ,{20,-330} ,{-20,-300} ,{80,-1000} ,{0,-300} ,{10,-450} ,{-10,-450} };
+float commetsPosition[12][2] = { {-650,-100},{40,-900} ,{-100,-123} ,{-460,-400} ,{199,-480} ,{40,-700} ,{220,-330} ,{-20,-800} ,{480,-1000} ,{50,-300} ,{220,-450} ,{-190,-450} };
 int commets[12] = { 1,1,1,1,1,1,1,1,1,1,1,1 };
 Model_3DS model_tree;
 Model_3DS model_tank;
@@ -42,6 +42,10 @@ Model_3DS model_alienship;
 
 int score;
 int health = 12;
+bool GameOver = false;
+bool firstEnvironment = true; // in first environemt
+bool wonOne = false; //won first game move to second environment
+bool wonTwo = false;// won second game move to next scene
 int playerSpeed = 10;
 int boosterX = 400;
 int boosterY = 0;
@@ -290,7 +294,7 @@ void initComets() {
 		float zPosition = commetsPosition[i][1];
 
 		//model_commet[i].pos.z = zPosition - model_spacecraft.pos.z;
-		
+
 		//model_commet[i].pos.y = model_spacecraft.pos.y;
 		glPushMatrix();
 		glTranslatef(xPosition, 0, zPosition);
@@ -302,6 +306,7 @@ void initComets() {
 
 	}
 }
+
 
 
 void drawComets() {
@@ -333,22 +338,31 @@ BOOLEAN playerHitComet() {
 		float posX = commetsPosition[i][0];
 		float posY = 0;
 		float posZ = commetsPosition[i][1];
-		cout << "X" << posX;
+		/*cout << "X" << posX;
 		cout << "\n";
 
 		cout << "Y" << posY;
 		cout << "\n";
 
 		cout << "Z" << posZ;
-		cout << "\n";
+		cout << "\n";*/
 
 
 
 
 		if (
-			(abs(abs(playerZ) - abs(posZ)) <= 33) && (abs(abs(playerX) - abs(posX)) <= 33)) {
+			(abs(playerZ - posZ) <= 33) && (abs(playerX - posX) <= 25)) {
 			cout << "here";
+			cout << "CollisionX" << posX;
+			cout << "\n";
+
+			cout << "CollisionY" << posY;
+			cout << "\n";
+
+			cout << "CollisionZ" << posZ;
+			cout << "\n";
 			PlaySound(TEXT("cometHit.wav"), NULL, SND_ASYNC);
+			health--;
 			return true;
 			//commets[i] = 0;
 
@@ -358,6 +372,12 @@ BOOLEAN playerHitComet() {
 	}
 	return false;
 
+}
+bool isGameOver() {
+	if (health == 0) {
+		return true;
+	}
+	return false;
 }
 
 
@@ -504,6 +524,31 @@ void drawWinScreen() {
 	//printScore(46, 65, 100, 1, 1, 1);
 	print(40, 60, 100, 1, 1, 1, "Press Enter to Play Again");
 }
+void drawHealthBar() {
+	glPushMatrix();
+
+
+	// Draw the health bar background
+	glColor3f(0.8f, 0.2f, 0.2f); // Red color for background
+	glBegin(GL_QUADS);
+	glVertex2f(50, 30); // Top-left corner of the health bar
+	glVertex2f(50 + health * 10, 30); // Top-right corner (increase width based on health)
+	glVertex2f(50 + health * 10, 50); // Bottom-right corner
+	glVertex2f(50, 50); // Bottom-left corner
+	glEnd();
+
+	// Outline for the health bar
+	//glColor3f(0.0f, 0.0f, 0.0f); // Black color for outline
+	glBegin(GL_LINE_LOOP);
+	glVertex2f(50, 30); // Top-left corner of the health bar
+	glVertex2f(250, 30); // Top-right corner (fixed width)
+	glVertex2f(250, 50); // Bottom-right corner (fixed width)
+	glVertex2f(50, 50); // Bottom-left corner
+	glEnd();
+
+	glPopMatrix();
+}
+
 
 void gameScreen() {
 	switch (gameState) {
@@ -584,54 +629,63 @@ void Display() {
 	setupLights();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	if (firstEnvironment) {
 
-	drawTank();
-	moonRotationAngle += 1.5f;
-	drawMoon();
-	/*drawAlienShip();*/
-	model_tank.pos.x = tankX;
-	model_tank.pos.y = tankY;
-	model_tank.pos.z = tankZ;
-	drawBooster();
-	model_speedBooster.pos.x = boosterX;
-	model_speedBooster.pos.y = boosterY;
-	model_speedBooster.pos.z = boosterZ;
+		drawTank();
+		moonRotationAngle += 1.5f;
+		drawMoon();
+		/*drawAlienShip();*/
+		model_tank.pos.x = tankX;
+		model_tank.pos.y = tankY;
+		model_tank.pos.z = tankZ;
+		drawBooster();
+		model_speedBooster.pos.x = boosterX;
+		model_speedBooster.pos.y = boosterY;
+		model_speedBooster.pos.z = boosterZ;
 
-	tankCollided();
-	//boosterCollided();
-	fuelDuration();
-	printFuel(-40, 20, 0, 1, 0, 0);
-	gameScreen();
+		tankCollided();
+		//boosterCollided();
+		fuelDuration();
+		printFuel(-40, 20, 0, 1, 0, 0);
+		gameScreen();
 
-	// Draw spacecraft Model
-	glPushMatrix();
-	glTranslatef(playerX, playerY, playerZ);
-	glScalef(0.1, 0.1, 0.1);
-	model_spacecraft.Draw();
-	glPopMatrix();
-	glPushMatrix();
-	glPushMatrix();
-	drawComets();
-	glPopMatrix();
-	glPushMatrix();
-
-
-
-	//sky box
-	glPushMatrix();
-
-	GLUquadricObj* qobj;
-	qobj = gluNewQuadric();
-	glTranslated(50, 0, 0);
-	glRotated(90, 1, 0, 1);
-	glBindTexture(GL_TEXTURE_2D, tex);
-	gluQuadricTexture(qobj, true);
-	gluQuadricNormals(qobj, GL_SMOOTH);
-	gluSphere(qobj, 1000, 100, 1000);
-	gluDeleteQuadric(qobj);
+		// Draw spacecraft Model
+		glPushMatrix();
+		glTranslatef(playerX, playerY, playerZ);
+		glScalef(0.1, 0.1, 0.1);
+		model_spacecraft.Draw();
+		glPopMatrix();
+		glPushMatrix();
+		glPushMatrix();
+		drawComets();
+		glPopMatrix();
+		glPushMatrix();
 
 
-	glPopMatrix();
+
+		//sky box
+		glPushMatrix();
+
+		GLUquadricObj* qobj;
+		qobj = gluNewQuadric();
+		glTranslated(50, 0, 0);
+		glRotated(90, 1, 0, 1);
+		glBindTexture(GL_TEXTURE_2D, tex);
+		gluQuadricTexture(qobj, true);
+		gluQuadricNormals(qobj, GL_SMOOTH);
+		gluSphere(qobj, 1000, 100, 1000);
+		gluDeleteQuadric(qobj);
+
+
+		glPopMatrix();
+	}
+	else {
+		//second environmet
+
+	}
+	if (isGameOver()) {
+		//display game over won/lose
+	}
 	glFlush();
 	glutSwapBuffers();
 }
