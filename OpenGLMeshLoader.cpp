@@ -296,8 +296,8 @@ void LoadAssets()
 		model_alienship[i].Load("Models/spacecraft/alienship2.3DS");
 	}
 	
-	/*model_moon.Load("Models/MoonZ/moon.3ds");
-	model_tank.Load("Models/fuelTank/uploads_files_3640174_jerrycan_1.3ds");*/
+	//model_moon.Load("Models/MoonZ/moon.3ds");
+	model_tank.Load("Models/fuelTank/uploads_files_3640174_jerrycan_1.3ds");
 	//model_speedBooster.Load("Models/speedBooster/uploads_files_1914765_Rocket.3ds");
 	// Loading texture files
 	//tex_ground.Load("Textures/universe.bmp");
@@ -453,6 +453,22 @@ bool checkCollision(double playerX, double playerY, double playerZ, double tankX
 	}
 
 	return false; // No collision
+}
+
+void checkPlanetReached() {
+
+
+	if (playerX == 0 && playerY == 0 && playerZ == -470) {
+		if (firstEnvironment) {
+		firstEnvironment = false; // Collision detected
+		camera.setFrontView();
+		playerX = 0;
+		playerY = 0;
+		playerZ = 0;
+	}
+		cout << "Planet reached" << firstEnvironment;
+	}
+
 }
 
 void drawTank() {
@@ -697,12 +713,12 @@ void Display() {
         glPopMatrix();
        tankCollided();
      //boosterCollided();
-    fuelDuration();
-    printFuel(-40, 20, 0, 1, 0, 0);
+		 fuelDuration();
+		printFuel(-40, 20, 0, 1, 0, 0);
       gameScreen();
 		moonRotationAngle += 1.5f;
 		
-		drawAlienShips();
+		
 	
 
 
@@ -739,6 +755,33 @@ void Display() {
 	}
 	else {
 		//second environmet
+			//sky box
+		
+		glPushMatrix();
+
+		GLUquadricObj* qobj;
+		qobj = gluNewQuadric();
+		glTranslated(50, 0, 0);
+		glRotated(90, 1, 0, 1);
+		glBindTexture(GL_TEXTURE_2D, tex);
+		gluQuadricTexture(qobj, true);
+		gluQuadricNormals(qobj, GL_SMOOTH);
+		gluSphere(qobj, 1000, 100, 1000);
+		gluDeleteQuadric(qobj);
+
+
+		glPopMatrix();
+		glPushMatrix();
+		drawAlienShips();
+		glPopMatrix();
+
+
+		// Draw spacecraft Model
+		glPushMatrix();
+		glTranslatef(playerX, playerY, playerZ);
+		glScalef(0.1, 0.1, 0.1);
+		model_spacecraft.Draw();
+		glPopMatrix();
 
 	}
 	if (isGameOver()) {
@@ -795,6 +838,7 @@ void Keyboard(unsigned char key, int x, int y) {
 		camera.setSideView();
 		break;
 	case 'w':
+		checkPlanetReached();
 		if (!playerHitComet()) {
 			camera.moveZ(2 * d);//needs to be adjusted based on player speed
 			camera.moveY(d / 2);
