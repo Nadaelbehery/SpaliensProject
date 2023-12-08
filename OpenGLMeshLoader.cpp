@@ -19,7 +19,12 @@ GLuint jrocket_tex;
 GLuint metal_tex;
 
 char title[] = "3D Model Loader Sample";
-
+//DAREENLaserBeam
+bool isLaserActive = false;
+float laserY = 0.0f;
+float laserRotation = 0.0f;
+//DAREEN firstPersonCamera
+bool firstPerson = false;
 // 3D Projection Options
 GLdouble fovy = 35.0;
 GLdouble aspectRatio = (GLdouble)WIDTH / (GLdouble)HEIGHT;
@@ -119,9 +124,16 @@ public:
 	}
 
 	void setFrontView() {
-		eye = Vector3f(0.0f, 15.0f, 60.0f);
-		center = Vector3f(0.0f, 0.0f, 0.0f);
-		up = Vector3f(0.0f, 1.0f, 0.0f);
+		if (firstPerson) {
+			eye = Vector3f(playerX, playerY, 20-playerZ);
+			center = Vector3f(0.0f, 0.0f, 0.0f);
+			up = Vector3f(0.0f, 1.0f, 0.0f);
+		}
+		else {
+			eye = Vector3f(0.0f, 15.0f, 60.0f);
+			center = Vector3f(0.0f, 0.0f, 0.0f);
+			up = Vector3f(0.0f, 1.0f, 0.0f);
+		}
 	}
 
 	void setSideView() {
@@ -283,7 +295,36 @@ void drawExplosion(float explosionX, float explosionY, float explosionZ) {
 		glPopMatrix();
 	}
 }
+void drawLaser() {
+	glPushMatrix();
+	glColor3f(1.0f, 0.0f, 0.0f); // Red color for the laser
 
+	// Rotate the laser beam
+	glTranslatef(playerX, laserY, 0.0f);
+	glRotatef(laserRotation, 0.0f, 0.0f, 1.0f);
+
+	// Draw three parallel lines with increased thickness
+	glLineWidth(3.0f); // Set the line width to make it thicker
+
+	glBegin(GL_LINE_STRIP);
+	glVertex3f(0.0f, 0.0f, 0.0f);
+	glVertex3f(0.0f, 1.0f, 0.0f); // First line
+	glEnd();
+
+	glBegin(GL_LINE_STRIP);
+	glVertex3f(0.05f, 0.0f, 0.0f);
+	glVertex3f(0.05f, 1.0f, 0.0f); // Second line
+	glEnd();
+
+	glBegin(GL_LINE_STRIP);
+	glVertex3f(-0.05f, 0.0f, 0.0f);
+	glVertex3f(-0.05f, 1.0f, 0.0f); // Third line
+	glEnd();
+
+	glLineWidth(1.0f); // Reset the line width to the default value
+
+	glPopMatrix();
+}
 void LoadAssets()
 {
 	// Loading Model files
@@ -747,11 +788,16 @@ void Display() {
 		gluSphere(qobj, 1000, 100, 1000);
 		gluDeleteQuadric(qobj);
 
-
 		glPopMatrix();
 		glPushMatrix();
 		drawMoon();
 		glPopMatrix();
+
+		//drawlaserBeam
+		//
+		//glPushMatrix();
+		//drawLaser();
+		//glPopMatrix();
 	}
 	else {
 		//second environmet
@@ -839,9 +885,18 @@ void Keyboard(unsigned char key, int x, int y) {
 		break;
 	case 'w':
 		checkPlanetReached();
+		
 		if (!playerHitComet()) {
-			camera.moveZ(2 * d);//needs to be adjusted based on player speed
+			if (firstPerson) {
+				camera.moveZ( d/2);//needs to be adjusted based on player speed
+				//model_spacecraft.pos.z = model_spacecraft.pos.z - playerSpeed*0.1;
+
+				//playerZ = playerZ - 1;
+			}
+			else{
+				camera.moveZ(2 * d);//needs to be adjusted based on player speed
 			camera.moveY(d / 2);
+		}
 			//model_spacecraft.pos.z = model_spacecraft.pos.z - playerSpeed*0.1;
 
 			playerZ = playerZ - 1;
@@ -883,12 +938,41 @@ void Keyboard(unsigned char key, int x, int y) {
 	case 'e':
 		model_spacecraft.rot.z = model_spacecraft.rot.z + 15.0f;
 		break;
+	case 'k':
+		// Toggle the laser when the 'k' key is pressed
+		isLaserActive = !isLaserActive;
+		if (isLaserActive) {
+			laserY = playerY + 0.1f; // Adjust the laser starting position
+			// Increase the score when firing the laser
+			score += 10;
+		}
+		break;
+	case 'l':
+		firstPerson = true;
+		camera.eye=Vector3f(playerX, playerY,  playerZ-20);
+		//camera.setFrontView();
+		break;
+	case 'm':
+		firstPerson = false;
+		camera.eye = Vector3f(playerX, playerY+15, playerZ+60);
 
+		//camera.setFrontView();
+		break;
 	case GLUT_KEY_ESCAPE:
 		exit(EXIT_SUCCESS);
 	}
 
 	glutPostRedisplay();
+}
+void update(int value) {
+	// Update the rotation angle for the laser beam
+	laserRotation += 5.0f;
+	if (laserRotation > 360.0f) {
+		laserRotation -= 360.0f;
+	}
+
+	glutPostRedisplay();
+	glutTimerFunc(30, update, 0); // Set the timer to call the update function every 30 milliseconds
 }
 
 void KeyUp(unsigned char key, int x, int y) {
