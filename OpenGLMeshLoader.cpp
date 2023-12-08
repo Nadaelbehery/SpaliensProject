@@ -32,11 +32,15 @@ Model_3DS model_spacecraft;
 Model_3DS model_commet[12];
 float commetsPosition[12][2] = { {-650,-100},{40,-900} ,{-100,-123} ,{-460,-400} ,{199,-480} ,{40,-700} ,{220,-330} ,{-20,-800} ,{480,-1000} ,{50,-300} ,{220,-450} ,{-190,-450} };
 int commets[12] = { 1,1,1,1,1,1,1,1,1,1,1,1 };
+
+Model_3DS model_alienship[4];
+float alienshipsposition[4][2] = { {-90,-70},{70,-400} ,{0,-150} ,{-40,-370} };
+int alienships[4] = { 1,1,1,1 };
+
 Model_3DS model_tree;
 Model_3DS model_tank;
 Model_3DS model_moon;
 Model_3DS model_speedBooster;
-Model_3DS model_alienship;
 
 
 
@@ -288,7 +292,10 @@ void LoadAssets()
 		model_commet[i].Load("Models/commet/asteroid 3DS.3DS");
 	}
 	model_tree.Load("Models/tree/Tree1.3ds");
-	model_alienship.Load("Models/spacecraft/alienship2.3DS");
+	for (int i = 0; i < 4; i++) {
+		model_alienship[i].Load("Models/spacecraft/alienship2.3DS");
+	}
+	
 	/*model_moon.Load("Models/MoonZ/moon.3ds");
 	model_tank.Load("Models/fuelTank/uploads_files_3640174_jerrycan_1.3ds");*/
 	//model_speedBooster.Load("Models/speedBooster/uploads_files_1914765_Rocket.3ds");
@@ -318,6 +325,45 @@ void initComets() {
 		model_commet[i].lit = true;
 
 
+	}
+}
+
+void initAlienShips() {
+	for (int i = 0; i < 4 && alienships[i] == 1; i++) {
+
+		//float xPosition = -100 + (rand() % 1); // Calculate x position based on spacing
+		//float zPosition = -100 + (rand() % 1);
+		float xPosition = alienshipsposition[i][0];
+		float zPosition = alienshipsposition[i][1];
+
+		//model_commet[i].pos.z = zPosition - model_spacecraft.pos.z;
+
+		//model_commet[i].pos.y = model_spacecraft.pos.y;
+		glPushMatrix();
+		glTranslatef(xPosition, 0, zPosition);
+		glScalef(0.02, 0.02, 0.02);
+		glRotatef(90, 1, 0, 0);
+		//glScalef(0.2, 0.2, 0.2);
+		model_alienship[i].Draw();
+		glPopMatrix();
+		model_alienship[i].lit = true;
+	}
+}
+
+
+void drawAlienShips() {
+	int numAlienShips = 4;
+	float viewWidth = 780;
+	float spacing = viewWidth / numAlienShips;
+
+	for (int i = 0; i < numAlienShips && alienships[i] == 1; i++) {
+
+		glPushMatrix();
+		glTranslatef(alienshipsposition[i][0], 0, alienshipsposition[i][1]);
+		glScalef(0.02, 0.02, 0.02);
+		glRotatef(90, 1, 0, 0);
+		model_alienship[i].Draw();
+		glPopMatrix();
 	}
 }
 
@@ -430,36 +476,36 @@ void drawTank() {
 	glPopMatrix();
 }
 
-void drawAlienShip() {
-	// Push the matrix to save the current transformation state
-	glPushMatrix();
-
-	// Create a new quadric object
-	GLUquadricObj* qobj = gluNewQuadric();
-
-	// Scale, rotate, and translate the alien ship
-	glScalef(0.02, 0.02, 0.02);
-	glRotated(90, 1, 0, 0);
-	glTranslated(0, 7, 0);
-
-	// Bind the metal texture
-	glBindTexture(GL_TEXTURE_2D, metal_tex);
-
-	// Enable texture coordinate generation
-	gluQuadricTexture(qobj, true);
-
-	// Enable smooth shading
-	gluQuadricNormals(qobj, GL_SMOOTH);
-
-	// Draw the alien ship with the metal texture
-	model_alienship.Draw();
-
-	// Delete the quadric object
-	gluDeleteQuadric(qobj);
-
-	// Pop the matrix to restore the previous transformation state
-	glPopMatrix();
-}
+//void drawAlienShip() {
+//	// Push the matrix to save the current transformation state
+//	glPushMatrix();
+//
+//	// Create a new quadric object
+//	GLUquadricObj* qobj = gluNewQuadric();
+//
+//	// Scale, rotate, and translate the alien ship
+//	glScalef(0.03, 0.03, 0.03);
+//	glRotated(90, 1, 0, 0);
+//	glTranslated(0, 7, 0);
+//
+//	// Bind the metal texture
+//	glBindTexture(GL_TEXTURE_2D, metal_tex);
+//
+//	// Enable texture coordinate generation
+//	gluQuadricTexture(qobj, true);
+//
+//	// Enable smooth shading
+//	gluQuadricNormals(qobj, GL_SMOOTH);
+//
+//	// Draw the alien ship with the metal texture
+//	model_alienship.Draw();
+//
+//	// Delete the quadric object
+//	gluDeleteQuadric(qobj);
+//
+//	// Pop the matrix to restore the previous transformation state
+//	glPopMatrix();
+//}
 
 float moonRotationAngle = 0.0f;
 
@@ -656,7 +702,7 @@ void Display() {
 		drawTank();
 		moonRotationAngle += 1.5f;
 		
-		/*drawAlienShip();*/
+		drawAlienShips();
 		model_tank.pos.x = tankX;
 		model_tank.pos.y = tankY;
 		model_tank.pos.z = tankZ;
