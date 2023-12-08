@@ -55,8 +55,8 @@ int boosterX = 400;
 int boosterY = 0;
 int boosterZ = -400;
 int tankX = 0;
-int tankY = 0;
-int tankZ = -400;
+int tankY = -5;
+int tankZ = -200;
 float playerX = 0;
 float playerY = 0;
 float playerZ = 0;
@@ -446,21 +446,9 @@ bool isGameOver() {
 
 
 bool checkCollision(double playerX, double playerY, double playerZ, double tankX, double tankY, double tankZ) {
-	// Calculate the differences between player and tank positions
-	double dx = tankX - playerX;
-	double dy = tankY - playerY;
-	double dz = tankZ - playerZ;
 
-	// Calculate the distance between player and tank using Euclidean distance formula
-	double distance = sqrt(dx * dx + dy * dy + dz * dz);
 
-	// Define the collision thresholds for each dimension
-	double collisionThresholdX = 15.0; // Adjust this value according to your game's units
-	double collisionThresholdY = 5.0;  // Adjust this value according to your game's units
-	double collisionThresholdZ = 8.0;  // Adjust this value according to your game's units
-
-	// Check if the distance between player and tank is within the collision thresholds
-	if (distance <= collisionThresholdX && abs(dy) <= collisionThresholdY && abs(dz) <= collisionThresholdZ) {
+	if (playerX == 0 && playerY == 0 && playerZ == -204) {
 		return true; // Collision detected
 	}
 
@@ -471,11 +459,22 @@ void drawTank() {
 
 	// Draw tank Model
 	glPushMatrix();
+	glTranslatef(tankX, tankY, tankZ);
 	glScalef(0.2, 0.15, 0.2);
 	model_tank.Draw();
 	glPopMatrix();
-}
 
+}
+void tankCollided() {
+
+	bool collided = checkCollision(playerX, playerY, playerZ, tankX, tankY, tankZ);
+	if (collided) {
+		tankX = -100000;
+		tankY = -100000;
+		tankZ = -100000;
+		Fuel = 30;
+	}
+}
 //void drawAlienShip() {
 //	// Push the matrix to save the current transformation state
 //	glPushMatrix();
@@ -531,16 +530,7 @@ void drawMoon() {
 	glPopMatrix();
 }
 
-void tankCollided() {
 
-	bool collided = checkCollision(playerX, playerY, playerZ, tankX, tankY, tankZ);
-	if (collided) {
-		tankX = -100000;
-		tankY = -100000;
-		tankZ = -100000;
-		Fuel = 30;
-	}
-}
 void drawBooster() {
 	// Draw Booster Model
 	glPushMatrix();
@@ -699,23 +689,22 @@ void Display() {
 		glutSolidCube(1.0);
 		glPopMatrix();
 
-		drawTank();
+	   glPushMatrix();
+       drawTank();
+       glPopMatrix();
+       glPushMatrix();
+      //drawBooster();
+        glPopMatrix();
+       tankCollided();
+     //boosterCollided();
+    fuelDuration();
+    printFuel(-40, 20, 0, 1, 0, 0);
+      gameScreen();
 		moonRotationAngle += 1.5f;
 		
 		drawAlienShips();
-		model_tank.pos.x = tankX;
-		model_tank.pos.y = tankY;
-		model_tank.pos.z = tankZ;
-		drawBooster();
-		model_speedBooster.pos.x = boosterX;
-		model_speedBooster.pos.y = boosterY;
-		model_speedBooster.pos.z = boosterZ;
+	
 
-		tankCollided();
-		//boosterCollided();
-		fuelDuration();
-		printFuel(-40, 20, 0, 1, 0, 0);
-		gameScreen();
 
 		// Draw spacecraft Model
 		glPushMatrix();
