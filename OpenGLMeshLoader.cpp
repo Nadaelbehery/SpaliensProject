@@ -986,7 +986,12 @@ void Display() {
 		glPopMatrix();
 
 
-		printScore(camera.eye.x - 1, camera.eye.y - 0.1, camera.eye.z - 2, 1, 0, 0);
+		glPushMatrix();
+glDisable(GL_LIGHTING);
+glBindTexture(GL_TEXTURE_2D, 0);
+printScore(camera.eye.x - 1, camera.eye.y - 0.1, camera.eye.z - 2, 1, 0, 0);
+glEnable(GL_LIGHTING);
+glPopMatrix();
 	}
 	if (isGameOver()) {
 		//display game over won/lose
