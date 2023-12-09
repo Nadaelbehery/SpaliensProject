@@ -10,7 +10,7 @@
 using namespace std;
 int WIDTH = 1280;
 int HEIGHT = 720;
-int Fuel = 30;
+int Fuel = 300;
 
 GLuint tex;
 GLuint fuel_tex;
@@ -543,7 +543,7 @@ void tankCollided() {
 			tanks[collidedTankIndex] = 0; // Set visibility flag of collided tank to 0 to make it disappear
 			// Other actions you want to take upon collision...
 			
-			Fuel = 30;
+			Fuel = 300;
 			score += 2;
 		}
 	}
