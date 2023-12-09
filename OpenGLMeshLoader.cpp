@@ -134,7 +134,8 @@ public:
 
 	void setFrontView() {
 		if (firstPerson) {
-			eye = Vector3f(playerX, playerY, 20 - playerZ);
+
+			eye = Vector3f(playerX, playerY, playerZ + 5);
 			center = Vector3f(0.0f, 0.0f, 0.0f);
 			up = Vector3f(0.0f, 1.0f, 0.0f);
 		}
@@ -650,9 +651,9 @@ bool isGameOver() {
 
 
 void checkPlanetReached() {
+	
 
-
-	if (playerX == 0 && playerY == 0 && playerZ == -470) {
+	if( (abs(playerZ + 470) <= 33) && (abs(playerX - 0) <= 15)) {
 		if (firstEnvironment) {
 			firstEnvironment = false; // Collision detected
 			camera.setFrontView();
@@ -945,6 +946,7 @@ void Display() {
 
 		if (isCollision) {
 			glPushMatrix();
+			//glBindTexture(GL_TEXTURE_2D, 0); // prevents the color of the text from being changed
 			drawExplosion();
 			glPopMatrix();
 			isCollision = false;
@@ -1062,6 +1064,8 @@ void Keyboard(unsigned char key, int x, int y) {
 		if (!playerHitComet()) {
 			if (firstPerson) {
 				camera.moveZ(2 * d);//needs to be adjusted based on player speed
+				//camera.moveY(d / 4);
+
 				//model_spacecraft.pos.z = model_spacecraft.pos.z - playerSpeed*0.1;
 
 				//playerZ = playerZ - 1;
@@ -1122,12 +1126,14 @@ void Keyboard(unsigned char key, int x, int y) {
 		break;
 	case 'l':
 		firstPerson = true;
-		camera.eye = Vector3f(playerX, playerY, playerZ + 5);
+		camera.eye = Vector3f(playerX, playerY+4, playerZ + 5);
+		camera.center= Vector3f(playerX, playerY+4, playerZ - 5);
 		//camera.setFrontView();
 		break;
 	case 'm':
 		firstPerson = false;
 		camera.eye = Vector3f(playerX, playerY + 15, playerZ + 60);
+		camera.center = Vector3f(playerX, playerY, playerZ );
 
 		//camera.setFrontView();
 		break;
