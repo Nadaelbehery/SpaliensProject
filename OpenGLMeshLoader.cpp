@@ -42,8 +42,16 @@ Model_3DS model_alienship[4];
 float alienshipsposition[4][2] = { {-90,-70},{70,-400} ,{0,-150} ,{-40,-370} };
 int alienships[4] = { 1,1,1,1 };
 
+
+Model_3DS model_coin[4];
+float coinsposition[4][2] = { {-100,-70},{-50,-300} ,{0,-180} ,{50,-170} };
+int coins[4] = { 1,1,1,1 };
+int flag;
+Model_3DS model_tank[4];
+float tanksposition[4][2] = { {-100,-70},{-50,-300} ,{0,-180} ,{50,-170} };
+int tanks[4] = { 1,1,1,1 };
+
 Model_3DS model_tree;
-Model_3DS model_tank;
 Model_3DS model_moon;
 Model_3DS model_speedBooster;
 
@@ -56,12 +64,12 @@ bool firstEnvironment = true; // in first environemt
 bool wonOne = false; //won first game move to second environment
 bool wonTwo = false;// won second game move to next scene
 int playerSpeed = 10;
-int boosterX = 400;
-int boosterY = 0;
-int boosterZ = -400;
-int tankX = 0;
-int tankY = -5;
-int tankZ = -200;
+int coinX ;
+int coinY ;
+int coinZ ;
+int tankX ;
+int tankY ;
+int tankZ ;
 float playerX = 0;
 float playerY = 0;
 float playerZ = 0;
@@ -126,7 +134,7 @@ public:
 
 	void setFrontView() {
 		if (firstPerson) {
-			eye = Vector3f(playerX, playerY, 20-playerZ);
+			eye = Vector3f(playerX, playerY, 20 - playerZ);
 			center = Vector3f(0.0f, 0.0f, 0.0f);
 			up = Vector3f(0.0f, 1.0f, 0.0f);
 		}
@@ -247,41 +255,7 @@ void print(float x, float y, float z, float r, float g, float b, char* string)
 
 }
 
-void drawWall(double thickness) {
-	glPushMatrix();
-	glTranslated(0.5, 0.5 * thickness, 0.5);
-	glScaled(1.0, thickness, 1.0);
-	glutSolidCube(1);
-	glPopMatrix();
-}
-void drawTableLeg(double thick, double len) {
-	glPushMatrix();
-	glTranslated(0, len / 2, 0);
-	glScaled(thick, len, thick);
-	glutSolidCube(1.0);
-	glPopMatrix();
-}
-void drawJackPart() {
-	glPushMatrix();
-	glScaled(0.2, 0.2, 1.0);
-	glutSolidSphere(1, 15, 15);
-	glPopMatrix();
-	glPushMatrix();
-	glTranslated(0, 0, 1.2);
-	glutSolidSphere(0.2, 15, 15);
-	glTranslated(0, 0, -2.4);
-	glutSolidSphere(0.2, 15, 15);
-	glPopMatrix();
-}
-void drawJack() {
-	glPushMatrix();
-	drawJackPart();
-	glRotated(90.0, 0, 1, 0);
-	drawJackPart();
-	glRotated(90.0, 1, 0, 0);
-	drawJackPart();
-	glPopMatrix();
-}
+
 void drawExplosion() {
 	const int numSpheres = 30; // Number of spheres
 	const float spacing = 0.8f; // Spacing between spheres
@@ -339,9 +313,15 @@ void LoadAssets()
 	for (int i = 0; i < 4; i++) {
 		model_alienship[i].Load("Models/spacecraft/alienship2.3DS");
 	}
-	
+	for (int i = 0; i < 4; i++) {
+		model_coin[i].Load("Models/coin/Coin 2.3DS");
+	}
+
+	for (int i = 0; i < 4; i++) {
+		model_tank[i].Load("Models/fuelTank/uploads_files_3640174_jerrycan_1.3ds");
+	}
 	//model_moon.Load("Models/MoonZ/moon.3ds");
-	model_tank.Load("Models/fuelTank/uploads_files_3640174_jerrycan_1.3ds");
+	//model_tank.Load("Models/fuelTank/uploads_files_3640174_jerrycan_1.3ds");
 	//model_speedBooster.Load("Models/speedBooster/uploads_files_1914765_Rocket.3ds");
 	// Loading texture files
 	//tex_ground.Load("Textures/universe.bmp");
@@ -410,6 +390,186 @@ void drawAlienShips() {
 		glPopMatrix();
 	}
 }
+
+
+void initCoins() {
+	for (int i = 0; i < 4 && coins[i] == 1; i++) {
+
+		float xPosition = coinsposition[i][0];
+		float zPosition = coinsposition[i][1];
+
+		glPushMatrix();
+		glTranslatef(xPosition, 0, zPosition);
+		glScalef(0.02, 0.02, 0.02);
+		glRotatef(90, 1, 0, 0);
+		model_coin[i].Draw();
+		glPopMatrix();
+		model_coin[i].lit = true;
+	}
+}
+
+
+void drawCoins() {
+	int numCoins = 4;
+	float viewWidth = 780;
+	float spacing = viewWidth / numCoins;
+
+	for (int i = 0; i < numCoins && coins[i] == 1; i++) {
+
+		glPushMatrix();
+		glTranslatef(coinsposition[i][0], 0, coinsposition[i][1]);
+		glScalef(0.6, 0.6, 0.6);
+		glRotatef(90, 1, 0, 0);
+		model_coin[i].Draw();
+		glPopMatrix();
+	}
+}
+
+void initTanks() {
+	for (int i = 0; i < 4 && tanks[i] == 1; i++) {
+
+	
+	    tankX = tanksposition[i][0];
+		tankZ = tanksposition[i][1];
+		glPushMatrix();
+		glTranslatef(tankX, 0, tankZ);
+		glScalef(0.02, 0.02, 0.02);
+		glRotatef(90, 1, 0, 0);
+		//glScalef(0.2, 0.2, 0.2);
+		model_tank[i].Draw();
+		glPopMatrix();
+		model_tank[i].lit = true;
+	}
+}
+
+
+void drawTanks() {
+	int numTanks = 4;
+	float viewWidth = 780;
+	float spacing = viewWidth / numTanks;
+
+
+	for (int i = 0; i < numTanks; i++) {
+		if (tanks[i] == 1) {
+			glPushMatrix();
+			glTranslatef(tanksposition[i][0], -5, tanksposition[i][1]);
+			glScalef(0.2, 0.15, 0.2);
+
+			// Only draw the tank if it's visible (tanks[i] == 1)
+			model_tank[i].Draw();
+
+			glPopMatrix();
+		}
+	}
+}
+#include <cmath>
+
+// Define a function to calculate the distance between two points in 3D space
+double distance(double x1, double y1, double z1, double x2, double y2, double z2) {
+	return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2) + pow(z2 - z1, 2));
+}
+
+bool checkCollision(double playerX, double playerY, double playerZ, int& collidedTankIndex) {
+	// Check collision of player with tanks
+	const double playerRadius = 1.0; // Adjust this radius to fit your game's collision detection needs
+
+	for (int i = 0; i < 4; ++i) {
+		double tankX = tanksposition[i][0];
+		double tankY = 0; // Assuming tanks are at ground level
+		double tankZ = tanksposition[i][1];
+
+		const double tankRadius = 1.0; // Adjust this radius to fit your tanks' size
+
+		// Calculate the distance between player and tank
+		double dist = distance(playerX, playerY, playerZ, tankX, tankY, tankZ);
+
+		// If the distance is less than the sum of their radii, it's a collision
+		if (dist < (playerRadius + tankRadius)) {
+			collidedTankIndex = i;
+			return true; // Collision detected with tank[i]
+		}
+	}
+
+	return false; // No collision
+}
+
+/*bool checkTankCollision(double playerX, double playerY, double playerZ) {
+	if ((playerX == 0 && playerY == 0 && playerZ == -180) ||
+		(playerX == -1 && playerY == 0 && playerZ == -180) ||
+		(playerX == -2 && playerY == 0 && playerZ == -180) ||
+		(playerX == 1 && playerY == 0 && playerZ == -180) ||
+		(playerX == 2 && playerY == 0 && playerZ == -180) ||
+		(playerX == 3 && playerY == 0 && playerZ == -180)) {
+		flag = 1;
+	}
+	else if ((playerX == 48 && playerY == 0 && playerZ == -168) ||
+		(playerX == 49 && playerY == 0 && playerZ == -168) ||
+		(playerX == 50 && playerY == 0 && playerZ == -168) ||
+		(playerX == 51 && playerY == 0 && playerZ == -168) ||
+		(playerX == 52 && playerY == 0 && playerZ == -168) ||
+		(playerX == 53 && playerY == 0 && playerZ == -168)) {
+		flag = 2;
+	}
+	else if ((playerX == -98 && playerY == 0 && playerZ == -65) ||
+		(playerX == -99 && playerY == 0 && playerZ == -65) ||
+		(playerX == -100 && playerY == 0 && playerZ == -65) ||
+		(playerX == -101 && playerY == 0 && playerZ == -65) ||
+		(playerX == -102 && playerY == 0 && playerZ == -65) ||
+		(playerX == -103 && playerY == 0 && playerZ == -65)) {
+		flag = 3;
+	}
+	else if ((playerX == -48 && playerY == 0 && playerZ == -299) ||
+		(playerX == -49 && playerY == 0 && playerZ == -299) ||
+		(playerX == -50 && playerY == 0 && playerZ == -299) ||
+		(playerX == -51 && playerY == 0 && playerZ == -299) ||
+		(playerX == -52 && playerY == 0 && playerZ == -299) ||
+		(playerX == -53 && playerY == 0 && playerZ == -299)) {
+		flag = 4;
+	}
+	else {
+		return false; // No collision
+	}
+	return true; // Collision detected
+}*/
+
+
+
+
+void tankCollided() {
+	int collidedTankIndex = -1; // Initialize to an invalid index
+	bool collided = checkCollision(playerX, playerY, playerZ, collidedTankIndex);
+	if (collided) {
+		if (collidedTankIndex != -1) {
+			tanks[collidedTankIndex] = 0; // Set visibility flag of collided tank to 0 to make it disappear
+			// Other actions you want to take upon collision...
+			
+			Fuel = 30;
+			score += 2;
+		}
+	}
+}
+void coinCollided() {
+
+	int collidedCoinIndex = -1; // Initialize to an invalid index
+	bool collided = checkCollision(playerX, playerY, playerZ, collidedCoinIndex);
+	if (collided) {
+		if (collidedCoinIndex != -1) {
+			coins[collidedCoinIndex] = 0; // Set visibility flag of collided tank to 0 to make it disappear
+			// Other actions you want to take upon collision...
+
+			
+			score += 2;
+		}
+	}
+}
+
+
+
+
+
+
+
+
 
 
 
@@ -487,52 +647,25 @@ bool isGameOver() {
 
 
 
-bool checkCollision(double playerX, double playerY, double playerZ, double tankX, double tankY, double tankZ) {
 
-
-	if (playerX == 0 && playerY == 0 && playerZ == -204) {
-		return true; // Collision detected
-	}
-
-	return false; // No collision
-}
 
 void checkPlanetReached() {
 
 
 	if (playerX == 0 && playerY == 0 && playerZ == -470) {
 		if (firstEnvironment) {
-		firstEnvironment = false; // Collision detected
-		camera.setFrontView();
-		playerX = 0;
-		playerY = 0;
-		playerZ = 0;
-	}
+			firstEnvironment = false; // Collision detected
+			camera.setFrontView();
+			playerX = 0;
+			playerY = 0;
+			playerZ = 0;
+		}
 		cout << "Planet reached" << firstEnvironment;
 	}
 
 }
 
-void drawTank() {
 
-	// Draw tank Model
-	glPushMatrix();
-	glTranslatef(tankX, tankY, tankZ);
-	glScalef(0.2, 0.15, 0.2);
-	model_tank.Draw();
-	glPopMatrix();
-
-}
-void tankCollided() {
-
-	bool collided = checkCollision(playerX, playerY, playerZ, tankX, tankY, tankZ);
-	if (collided) {
-		tankX = -100000;
-		tankY = -100000;
-		tankZ = -100000;
-		Fuel = 30;
-	}
-}
 //void drawAlienShip() {
 //	// Push the matrix to save the current transformation state
 //	glPushMatrix();
@@ -581,7 +714,7 @@ void drawMoon() {
 
 	gluQuadricNormals(qobj, GL_SMOOTH);
 
-	gluSphere(qobj, 10, 50, 50);  
+	gluSphere(qobj, 10, 50, 50);
 
 	gluDeleteQuadric(qobj);
 
@@ -589,25 +722,7 @@ void drawMoon() {
 }
 
 
-void drawBooster() {
-	// Draw Booster Model
-	glPushMatrix();
-	glScalef(0.2, 0.05, 0.2);
-	model_speedBooster.Draw();
-	glPopMatrix();
 
-}
-void boosterCollided() {
-
-	bool collided = checkCollision(playerX, playerY, playerZ, boosterX, boosterY, boosterZ);
-	if (collided) {
-		boosterX = -100000;
-		boosterY = -100000;
-		boosterZ = -100000;
-		playerSpeed = 50;
-
-	}
-}
 
 void fuelDuration() {
 	int i = 0;
@@ -725,6 +840,17 @@ void printFuel(float x, float y, float z, float r, float g, float b) {
 	print(x, y, z, r, g, b, hChar);
 
 }
+void printScore(float x, float y, float z, float r, float g, float b) {
+	std::ostringstream ss;
+	ss << score;
+
+	string h = "Score : " + ss.str();
+	char hChar[1024];
+	strncpy(hChar, h.c_str(), sizeof(hChar));
+	hChar[sizeof(hChar) - 1] = 0;
+	print(x, y, z, r, g, b, hChar);
+
+}
 void displayHealth(float x, float y, float z, float r, float g, float b) {
 
 	std::ostringstream ss;
@@ -754,21 +880,21 @@ void Display() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	if (firstEnvironment) {
-		
-
-	   glPushMatrix();
-       drawTank();
-       glPopMatrix();
-       glPushMatrix();
-      //drawBooster();
-        glPopMatrix();
-       tankCollided();
-     //boosterCollided();
-		 fuelDuration();
-		moonRotationAngle += 1.5f;
-		
+	
 		
 	
+		
+
+		glPushMatrix();
+		drawTanks();
+		glPopMatrix();
+		tankCollided();
+		fuelDuration();
+
+		moonRotationAngle += 1.5f;
+
+
+
 
 
 		// Draw spacecraft Model
@@ -813,6 +939,7 @@ void Display() {
 		glBindTexture(GL_TEXTURE_2D, 0); // prevents the color of the text from being changed
 		displayHealth(camera.eye.x - 1, camera.eye.y, camera.eye.z - 2, 1, 0, 0);
 		printFuel(camera.eye.x - 1, camera.eye.y - 0.05, camera.eye.z - 2, 1, 0, 0);
+		printScore(camera.eye.x - 1, camera.eye.y - 0.1, camera.eye.z - 2, 1, 0, 0);
 		glEnable(GL_LIGHTING);
 		glPopMatrix();
 
@@ -827,7 +954,7 @@ void Display() {
 	else {
 		//second environmet
 			//sky box
-		
+
 		glPushMatrix();
 
 		GLUquadricObj* qobj;
@@ -846,6 +973,10 @@ void Display() {
 		drawAlienShips();
 		glPopMatrix();
 
+		glPushMatrix();
+		drawCoins();
+		glPopMatrix();
+		coinCollided();
 
 		// Draw spacecraft Model
 		glPushMatrix();
@@ -854,6 +985,8 @@ void Display() {
 		model_spacecraft.Draw();
 		glPopMatrix();
 
+
+		printScore(camera.eye.x - 1, camera.eye.y - 0.1, camera.eye.z - 2, 1, 0, 0);
 	}
 	if (isGameOver()) {
 		//display game over won/lose
@@ -920,18 +1053,18 @@ void Keyboard(unsigned char key, int x, int y) {
 		break;
 	case 'w':
 		checkPlanetReached();
-		
+
 		if (!playerHitComet()) {
 			if (firstPerson) {
-				camera.moveZ( 2*d);//needs to be adjusted based on player speed
+				camera.moveZ(2 * d);//needs to be adjusted based on player speed
 				//model_spacecraft.pos.z = model_spacecraft.pos.z - playerSpeed*0.1;
 
 				//playerZ = playerZ - 1;
 			}
-			else{
+			else {
 				camera.moveZ(2 * d);//needs to be adjusted based on player speed
-			camera.moveY(d / 2);
-		}
+				camera.moveY(d / 2);
+			}
 			//model_spacecraft.pos.z = model_spacecraft.pos.z - playerSpeed*0.1;
 
 			playerZ = playerZ - 1;
@@ -984,12 +1117,12 @@ void Keyboard(unsigned char key, int x, int y) {
 		break;
 	case 'l':
 		firstPerson = true;
-		camera.eye=Vector3f(playerX, playerY, playerZ+5);
+		camera.eye = Vector3f(playerX, playerY, playerZ + 5);
 		//camera.setFrontView();
 		break;
 	case 'm':
 		firstPerson = false;
-		camera.eye = Vector3f(playerX, playerY+15, playerZ+60);
+		camera.eye = Vector3f(playerX, playerY + 15, playerZ + 60);
 
 		//camera.setFrontView();
 		break;
