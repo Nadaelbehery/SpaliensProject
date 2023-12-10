@@ -944,25 +944,24 @@ void Display() {
 			//glPushMatrix();
 			//drawLaser();
 			//glPopMatrix();
+			glBindTexture(GL_TEXTURE_2D, 0); // prevents the color of the text from being changed
+
 			glPushMatrix();
 			glDisable(GL_LIGHTING);
 
 
-			glBindTexture(GL_TEXTURE_2D, 0); // prevents the color of the text from being changed
 			displayHealth(camera.eye.x - 1, camera.eye.y, camera.eye.z - 2, 1, 0, 0);
 			printFuel(camera.eye.x - 1, camera.eye.y - 0.05, camera.eye.z - 2, 1, 0, 0);
 			printScore(camera.eye.x - 1, camera.eye.y - 0.1, camera.eye.z - 2, 1, 0, 0);
 			glEnable(GL_LIGHTING);
 			glPopMatrix();
-
-			if (isCollision) {
-				glPushMatrix();
-				//glBindTexture(GL_TEXTURE_2D, 0); // prevents the color of the text from being changed
+			/*if (isCollision) {
+				glPushMatrix();								
 				drawExplosion();
 				glPopMatrix();
 				isCollision = false;
 
-			}
+			}*/
 		}
 		else {
 			//second environmet
@@ -979,7 +978,7 @@ void Display() {
 			gluQuadricNormals(qobj, GL_SMOOTH);
 			gluSphere(qobj, 1000, 100, 1000);
 			gluDeleteQuadric(qobj);
-
+			glBindTexture(GL_TEXTURE_2D, 0);
 
 			glPopMatrix();
 			glPushMatrix();
@@ -1230,6 +1229,26 @@ void init() {
 
 }
 
+
+void mouseButton(int button, int state, int x, int y) {
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+		// Switch between first and third person camera views
+		firstPerson = !firstPerson;
+
+		// Update the camera view based on the new perspective
+		if (firstPerson) {
+			camera.eye = Vector3f(playerX, playerY + 4, playerZ + 5);
+			camera.center = Vector3f(playerX, playerY + 4, playerZ - 5);
+		}
+		else {
+			// Switch to third-person view
+			camera.eye = Vector3f(playerX, playerY + 15, playerZ + 60);
+			camera.center = Vector3f(playerX, playerY, playerZ);
+		}
+	}
+}
+
+
 void main(int argc, char** argv) {
 	glutInit(&argc, argv);
 
@@ -1239,6 +1258,8 @@ void main(int argc, char** argv) {
 	glutCreateWindow("Spaliens");
 	glutDisplayFunc(Display);
 	glutKeyboardFunc(Keyboard);
+	glutMouseFunc(mouseButton);
+
 	glutKeyboardUpFunc(KeyUp);  // Register KeyUp function
 	glutSpecialFunc(Special);
 	srand(time(NULL));
