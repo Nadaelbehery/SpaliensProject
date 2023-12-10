@@ -63,6 +63,8 @@ bool GameOver = false;
 bool firstEnvironment = true; // in first environemt
 bool wonOne = false; //won first game move to second environment
 bool wonTwo = false;// won second game move to next scene
+bool lost = false; //won first game move to second environment
+
 int playerSpeed = 10;
 int coinX ;
 int coinY ;
@@ -628,6 +630,11 @@ BOOLEAN playerHitComet() {
 			cout << "\n";
 			PlaySound(TEXT("cometHit.wav"), NULL, SND_ASYNC);
 			health = health - 1;
+			if (health == 0) {
+				GameOver=true;
+				lost= true; //won first game move to second environment
+
+			}
 			isCollision = true;
 			return true;
 			//commets[i] = 0;
@@ -639,12 +646,7 @@ BOOLEAN playerHitComet() {
 	return false;
 
 }
-bool isGameOver() {
-	if (health == 0) {
-		return true;
-	}
-	return false;
-}
+
 
 
 
@@ -873,141 +875,167 @@ void timer(int value) {
 	int timerInterval = 1000; // 1000 milliseconds = 1 second
 	glutTimerFunc(timerInterval, timer, 0);
 }
+void renderBitmapString(float x, float y, void* font, const char* string) {
+	glRasterPos3f(x, y,-1);
+
+	while (*string) {
+		glutBitmapCharacter(font, *string);
+		string++;
+	}
+}
 
 
 void Display() {
+	if (!GameOver) {
+		setupCamera();
+		setupLights();
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		if (firstEnvironment) {
+
+
+
+
+
+			glPushMatrix();
+			drawTanks();
+			glPopMatrix();
+			tankCollided();
+			fuelDuration();
+
+			moonRotationAngle += 1.5f;
+
+
+
+
+
+			// Draw spacecraft Model
+			glPushMatrix();
+			glTranslatef(playerX, playerY, playerZ);
+			glScalef(0.1, 0.1, 0.1);
+			model_spacecraft.Draw();
+			glPopMatrix();
+			glPushMatrix();
+			drawComets();
+			glPopMatrix();
+
+
+
+			//sky box
+			glPushMatrix();
+
+			GLUquadricObj* qobj;
+			qobj = gluNewQuadric();
+			glTranslated(50, 0, 0);
+			glRotated(90, 1, 0, 1);
+			glBindTexture(GL_TEXTURE_2D, tex);
+			gluQuadricTexture(qobj, true);
+			gluQuadricNormals(qobj, GL_SMOOTH);
+			gluSphere(qobj, 1000, 100, 1000);
+			gluDeleteQuadric(qobj);
+
+			glPopMatrix();
+			glPushMatrix();
+			drawMoon();
+			glPopMatrix();
+
+			//drawlaserBeam
+			//
+			//glPushMatrix();
+			//drawLaser();
+			//glPopMatrix();
+			glPushMatrix();
+			glDisable(GL_LIGHTING);
+
+
+			glBindTexture(GL_TEXTURE_2D, 0); // prevents the color of the text from being changed
+			displayHealth(camera.eye.x - 1, camera.eye.y, camera.eye.z - 2, 1, 0, 0);
+			printFuel(camera.eye.x - 1, camera.eye.y - 0.05, camera.eye.z - 2, 1, 0, 0);
+			printScore(camera.eye.x - 1, camera.eye.y - 0.1, camera.eye.z - 2, 1, 0, 0);
+			glEnable(GL_LIGHTING);
+			glPopMatrix();
+
+			if (isCollision) {
+				glPushMatrix();
+				//glBindTexture(GL_TEXTURE_2D, 0); // prevents the color of the text from being changed
+				drawExplosion();
+				glPopMatrix();
+				isCollision = false;
+
+			}
+		}
+		else {
+			//second environmet
+				//sky box
+
+			glPushMatrix();
+
+			GLUquadricObj* qobj;
+			qobj = gluNewQuadric();
+			glTranslated(50, 0, 0);
+			glRotated(90, 1, 0, 1);
+			glBindTexture(GL_TEXTURE_2D, tex);
+			gluQuadricTexture(qobj, true);
+			gluQuadricNormals(qobj, GL_SMOOTH);
+			gluSphere(qobj, 1000, 100, 1000);
+			gluDeleteQuadric(qobj);
+
+
+			glPopMatrix();
+			glPushMatrix();
+			drawAlienShips();
+			glPopMatrix();
+
+			glPushMatrix();
+			drawCoins();
+			glPopMatrix();
+			coinCollided();
+
+			// Draw spacecraft Model
+			glPushMatrix();
+			glTranslatef(playerX, playerY, playerZ);
+			glScalef(0.1, 0.1, 0.1);
+			model_spacecraft.Draw();
+			glPopMatrix();
+
+
+			glPushMatrix();
+			glDisable(GL_LIGHTING);
+			glBindTexture(GL_TEXTURE_2D, 0);
+			printScore(camera.eye.x - 1, camera.eye.y - 0.1, camera.eye.z - 2, 1, 0, 0);
+			glEnable(GL_LIGHTING);
+			glPopMatrix();
+		}
+	}
+else {
 	setupCamera();
 	setupLights();
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	if (firstEnvironment) {
-	
-		
-	
-		
+	glPushMatrix();
+	glDisable(GL_LIGHTING);
 
-		glPushMatrix();
-		drawTanks();
-		glPopMatrix();
-		tankCollided();
-		fuelDuration();
+	glBindTexture(GL_TEXTURE_2D, 0); // prevents the color of the text from being changed
+	//displayHealth(camera.eye.x - 1, camera.eye.y, camera.eye.z - 2, 1, 0, 0);
+	string h ;
 
-		moonRotationAngle += 1.5f;
+	if (lost) {
+	 h = "Game Over.You lost!";
 
-
-
-
-
-		// Draw spacecraft Model
-		glPushMatrix();
-		glTranslatef(playerX, playerY, playerZ);
-		glScalef(0.1, 0.1, 0.1);
-		model_spacecraft.Draw();
-		glPopMatrix();
-		glPushMatrix();
-		drawComets();
-		glPopMatrix();
-
-
-
-		//sky box
-		glPushMatrix();
-
-		GLUquadricObj* qobj;
-		qobj = gluNewQuadric();
-		glTranslated(50, 0, 0);
-		glRotated(90, 1, 0, 1);
-		glBindTexture(GL_TEXTURE_2D, tex);
-		gluQuadricTexture(qobj, true);
-		gluQuadricNormals(qobj, GL_SMOOTH);
-		gluSphere(qobj, 1000, 100, 1000);
-		gluDeleteQuadric(qobj);
-
-		glPopMatrix();
-		glPushMatrix();
-		drawMoon();
-		glPopMatrix();
-
-		//drawlaserBeam
-		//
-		//glPushMatrix();
-		//drawLaser();
-		//glPopMatrix();
-		glPushMatrix();
-		glDisable(GL_LIGHTING);
-
-
-		glBindTexture(GL_TEXTURE_2D, 0); // prevents the color of the text from being changed
-		displayHealth(camera.eye.x - 1, camera.eye.y, camera.eye.z - 2, 1, 0, 0);
-		printFuel(camera.eye.x - 1, camera.eye.y - 0.05, camera.eye.z - 2, 1, 0, 0);
-		printScore(camera.eye.x - 1, camera.eye.y - 0.1, camera.eye.z - 2, 1, 0, 0);
-		glEnable(GL_LIGHTING);
-		glPopMatrix();
-
-		if (isCollision) {
-			glPushMatrix();
-			//glBindTexture(GL_TEXTURE_2D, 0); // prevents the color of the text from being changed
-			drawExplosion();
-			glPopMatrix();
-			isCollision = false;
-
-		}
 	}
 	else {
-		//second environmet
-			//sky box
+		h = "You Won!";
 
-		glPushMatrix();
-
-		GLUquadricObj* qobj;
-		qobj = gluNewQuadric();
-		glTranslated(50, 0, 0);
-		glRotated(90, 1, 0, 1);
-		glBindTexture(GL_TEXTURE_2D, tex);
-		gluQuadricTexture(qobj, true);
-		gluQuadricNormals(qobj, GL_SMOOTH);
-		gluSphere(qobj, 1000, 100, 1000);
-		gluDeleteQuadric(qobj);
-
-
-		glPopMatrix();
-		glPushMatrix();
-		drawAlienShips();
-		glPopMatrix();
-
-		glPushMatrix();
-		drawCoins();
-		glPopMatrix();
-		coinCollided();
-
-		// Draw spacecraft Model
-		glPushMatrix();
-		glTranslatef(playerX, playerY, playerZ);
-		glScalef(0.1, 0.1, 0.1);
-		model_spacecraft.Draw();
-		glPopMatrix();
-
-
-		glPushMatrix();
-glDisable(GL_LIGHTING);
-glBindTexture(GL_TEXTURE_2D, 0);
-printScore(camera.eye.x - 1, camera.eye.y - 0.1, camera.eye.z - 2, 1, 0, 0);
-glEnable(GL_LIGHTING);
-glPopMatrix();
 	}
-	if (isGameOver()) {
-		//display game over won/lose
-		glPushMatrix();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		char text[] = "Game Over. You Lost:(";
-		glBindTexture(GL_TEXTURE_2D, 0); // prevents the color of the text from being changed
-		glColor3f(1.0, 1.0, 1.0);
-		glRasterPos2f(-0.5, 0.0);
-		for (int i = 0; text[i] != '\0'; i++) {
-			glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, text[i]);
-		}
-		glPopMatrix();
+	char hChar[1024];
+	strncpy(hChar, h.c_str(), sizeof(hChar));
+	hChar[sizeof(hChar) - 1] = 0;
+	print(camera.eye.x - 1, camera.eye.y - 0.1, camera.eye.z - 2, 1.0,  0.0, 0.0, hChar);
+	glPopMatrix();
+
+
+
 	}
+	
 	glFlush();
 	glutSwapBuffers();
 }
