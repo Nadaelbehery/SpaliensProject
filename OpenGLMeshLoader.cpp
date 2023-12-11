@@ -519,7 +519,7 @@ bool checkAlienShipCollision() {
 		// If the distance is less than the sum of their radii, it's a collision
 		if (dist < (playerRadiuss + alienshipRadius) && alienships[i] == 1) {
 			alienships[i] = 0;
-			score -= 2;
+			health -= 2;
 			playerX -= 40;
 			camera.moveX(40);
 			PlaySound(TEXT("alienship.wav"), NULL, SND_ASYNC);
@@ -694,6 +694,7 @@ void checkPlanetReached() {
 			playerY = 0;
 			playerZ = 0;
 			score = 0;
+			health = 12;
 		}
 		cout << "Planet reached" << firstEnvironment;
 	}
@@ -1084,6 +1085,7 @@ void Display() {
 			glPushMatrix();
 			glDisable(GL_LIGHTING);
 			glBindTexture(GL_TEXTURE_2D, 0);
+			displayHealth(camera.eye.x - 1, camera.eye.y, camera.eye.z - 2, 1, 0, 0);
 			printScore(camera.eye.x - 1, camera.eye.y - 0.1, camera.eye.z - 2, 1, 0, 0);
 			glEnable(GL_LIGHTING);
 			glPopMatrix();
