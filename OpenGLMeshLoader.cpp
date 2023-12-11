@@ -13,6 +13,7 @@ int HEIGHT = 720;
 int Fuel = 4000;
 
 GLuint tex;
+GLuint two_tex;
 GLuint fuel_tex;
 GLuint moon_tex;
 GLuint jrocket_tex;
@@ -66,12 +67,12 @@ bool wonTwo = false;// won second game move to next scene
 bool lost = false; //won first game move to second environment
 
 int playerSpeed = 10;
-int coinX ;
-int coinY ;
-int coinZ ;
-int tankX ;
-int tankY ;
-int tankZ ;
+int coinX;
+int coinY;
+int coinZ;
+int tankX;
+int tankY;
+int tankZ;
 float playerX = 0;
 float playerY = 0;
 float playerZ = 0;
@@ -327,6 +328,7 @@ void LoadAssets()
 	//model_speedBooster.Load("Models/speedBooster/uploads_files_1914765_Rocket.3ds");
 	// Loading texture files
 	//tex_ground.Load("Textures/universe.bmp");
+	loadBMP(&two_tex, "Textures/universe.bmp", true);
 	loadBMP(&tex, "Textures/nightSky.bmp", true);
 	loadBMP(&moon_tex, "Textures/moon.bmp", true);
 	loadBMP(&metal_tex, "Textures/moon.bmp", true);
@@ -430,8 +432,8 @@ void drawCoins() {
 void initTanks() {
 	for (int i = 0; i < 4 && tanks[i] == 1; i++) {
 
-	
-	    tankX = tanksposition[i][0];
+
+		tankX = tanksposition[i][0];
 		tankZ = tanksposition[i][1];
 		glPushMatrix();
 		glTranslatef(tankX, 0, tankZ);
@@ -466,7 +468,7 @@ void drawTanks() {
 }
 #include <cmath>
 
-// Define a function to calculate the distance between two points in 3D space
+//  function to calculate the distance between two points in 3D space
 double distance(double x1, double y1, double z1, double x2, double y2, double z2) {
 	return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2) + pow(z2 - z1, 2));
 }
@@ -625,8 +627,8 @@ BOOLEAN playerHitComet() {
 			PlaySound(TEXT("cometHit.wav"), NULL, SND_ASYNC);
 			health = health - 1;
 			if (health == 0) {
-				GameOver=true;
-				lost= true; //won first game move to second environment
+				GameOver = true;
+				lost = true; //won first game move to second environment
 
 			}
 			isCollision = true;
@@ -647,9 +649,9 @@ BOOLEAN playerHitComet() {
 
 
 void checkPlanetReached() {
-	
 
-	if( (abs(playerZ + 470) <= 33) && (abs(playerX - 0) <=30)) {
+
+	if ((abs(playerZ + 470) <= 33) && (abs(playerX - 0) <= 30)) {
 		if (firstEnvironment) {
 			firstEnvironment = false; // Collision detected
 			firstPerson = false;
@@ -668,7 +670,7 @@ void checkPlanetReached() {
 void checkRechedMapEnd() {
 
 
-	if ((abs(playerZ + 650) <= 33)){
+	if ((abs(playerZ + 650) <= 33)) {
 		GameOver = true;
 		lost = true;
 	}
@@ -921,7 +923,7 @@ void timer(int value) {
 	glutTimerFunc(timerInterval, timer, 0);
 }
 void renderBitmapString(float x, float y, void* font, const char* string) {
-	glRasterPos3f(x, y,-1);
+	glRasterPos3f(x, y, -1);
 
 	while (*string) {
 		glutBitmapCharacter(font, *string);
@@ -997,11 +999,12 @@ void Display() {
 
 			displayHealth(camera.eye.x - 1, camera.eye.y, camera.eye.z - 2, 1, 0, 0);
 			printFuel(camera.eye.x - 1, camera.eye.y - 0.05, camera.eye.z - 2, 1, 0, 0);
-			printScore(camera.eye.x - 1, camera.eye.y - 0.1, camera.eye.z - 2, 1, 0, 0);
+			printScore(camera.eye.x - 1, camera.eye.y -0.1, camera.eye.z - 2, 1, 0, 0);
+			//printScore(camera.eye.x - 1, camera.eye.y , camera.eye.z - 2, 1, 0, 0);
 			glEnable(GL_LIGHTING);
 			glPopMatrix();
 			/*if (isCollision) {
-				glPushMatrix();								
+				glPushMatrix();
 				drawExplosion();
 				glPopMatrix();
 				isCollision = false;
@@ -1011,14 +1014,14 @@ void Display() {
 		else {
 			//second environmet
 				//sky box
-
+			//loadBMP(&tex, "Textures/universe.bmp", true);
 			glPushMatrix();
-
+			//loadBMP(&tex, "Textures/universe.bmp", true);
 			GLUquadricObj* qobj;
 			qobj = gluNewQuadric();
 			glTranslated(50, 0, 0);
 			glRotated(90, 1, 0, 1);
-			glBindTexture(GL_TEXTURE_2D, tex);
+			glBindTexture(GL_TEXTURE_2D, two_tex);
 			gluQuadricTexture(qobj, true);
 			gluQuadricNormals(qobj, GL_SMOOTH);
 			gluSphere(qobj, 1000, 100, 1000);
@@ -1046,42 +1049,42 @@ void Display() {
 			glPushMatrix();
 			glDisable(GL_LIGHTING);
 			glBindTexture(GL_TEXTURE_2D, 0);
-			printScore(camera.eye.x - 1, camera.eye.y - 0.1, camera.eye.z - 2, 1, 0, 0);
+			printScore(camera.eye.x - 1, camera.eye.y , camera.eye.z - 2, 1, 0, 0);
 			glEnable(GL_LIGHTING);
 			glPopMatrix();
 
 		}
 
 	}
-else {
-	setupCamera();
-	setupLights();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glPushMatrix();
-	glDisable(GL_LIGHTING);
-
-	glBindTexture(GL_TEXTURE_2D, 0); // prevents the color of the text from being changed
-	//displayHealth(camera.eye.x - 1, camera.eye.y, camera.eye.z - 2, 1, 0, 0);
-	string h ;
-
-	if (lost) {
-	 h = "Game Over.You lost!";
-
-	}
 	else {
-		h = "You Won!";
+		setupCamera();
+		setupLights();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glPushMatrix();
+		glDisable(GL_LIGHTING);
+
+		glBindTexture(GL_TEXTURE_2D, 0); // prevents the color of the text from being changed
+		//displayHealth(camera.eye.x - 1, camera.eye.y, camera.eye.z - 2, 1, 0, 0);
+		string h;
+
+		if (lost) {
+			h = "Game Over.You lost!";
+
+		}
+		else {
+			h = "You Won!";
+
+		}
+		char hChar[1024];
+		strncpy(hChar, h.c_str(), sizeof(hChar));
+		hChar[sizeof(hChar) - 1] = 0;
+		print(camera.eye.x - 1, camera.eye.y - 0.1, camera.eye.z - 2, 1.0, 0.0, 0.0, hChar);
+		glPopMatrix();
+
+
 
 	}
-	char hChar[1024];
-	strncpy(hChar, h.c_str(), sizeof(hChar));
-	hChar[sizeof(hChar) - 1] = 0;
-	print(camera.eye.x - 1, camera.eye.y - 0.1, camera.eye.z - 2, 1.0,  0.0, 0.0, hChar);
-	glPopMatrix();
 
-
-
-	}
-	
 	glFlush();
 	glutSwapBuffers();
 }
@@ -1089,7 +1092,7 @@ else {
 bool rotateLeft = false;
 bool rotateRight = false;
 
-const float boundaryLeft = -70.0f;  
+const float boundaryLeft = -70.0f;
 const float boundaryRight = 70.0f;
 
 const float forwardSpeed = 0.1f;  // Set your desired forward speed
@@ -1210,14 +1213,14 @@ void Keyboard(unsigned char key, int x, int y) {
 		break;
 	case 'l':
 		firstPerson = true;
-		camera.eye = Vector3f(playerX, playerY+4, playerZ + 5);
-		camera.center= Vector3f(playerX, playerY+4, playerZ - 5);
+		camera.eye = Vector3f(playerX, playerY + 4, playerZ + 5);
+		camera.center = Vector3f(playerX, playerY + 4, playerZ - 5);
 		//camera.setFrontView();
 		break;
 	case 'm':
 		firstPerson = false;
 		camera.eye = Vector3f(playerX, playerY + 15, playerZ + 60);
-		camera.center = Vector3f(playerX, playerY, playerZ );
+		camera.center = Vector3f(playerX, playerY, playerZ);
 
 		//camera.setFrontView();
 		break;
