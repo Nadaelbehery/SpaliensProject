@@ -490,6 +490,7 @@ bool checkTankCollision() {
 			tanks[i] = 0;
 			score += 2;
 			Fuel = 350;
+			PlaySound(TEXT("fuelTank.wav"), NULL, SND_ASYNC);
 
 			//collidedTankIndex = i;
 			return true; // Collision detected with tank[i]
@@ -516,6 +517,8 @@ bool checkCoinCollision() {
 		if (dist < (playerRadius + coinRadius) && coins[i] == 1) {
 			coins[i] = 0;
 			score += 2;
+			PlaySound(TEXT("SpeedBooster.wav"), NULL, SND_ASYNC);
+
 			return true; // Collision detected with tank[i]
 		}
 	}
