@@ -10,7 +10,7 @@
 using namespace std;
 int WIDTH = 1280;
 int HEIGHT = 720;
-int Fuel = 300;
+int Fuel = 350;
 
 GLuint tex;
 GLuint fuel_tex;
@@ -77,8 +77,7 @@ float playerY = 0;
 float playerZ = 0;
 bool isCollision = false;
 
-enum GameState { PLAYING, GAME_OVER_WIN, GAME_OVER_LOSE };
-GameState gameState = PLAYING;
+
 // Textures
 GLTexture tex_ground;
 
@@ -420,7 +419,7 @@ void drawCoins() {
 	for (int i = 0; i < numCoins && coins[i] == 1; i++) {
 
 		glPushMatrix();
-		glTranslatef(coinsposition[i][0], 0, coinsposition[i][1]);
+		glTranslatef(coinsposition[i][0], -2, coinsposition[i][1]);
 		glScalef(0.6, 0.6, 0.6);
 		glRotatef(90, 1, 0, 0);
 		model_coin[i].Draw();
@@ -472,7 +471,7 @@ double distance(double x1, double y1, double z1, double x2, double y2, double z2
 	return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2) + pow(z2 - z1, 2));
 }
 
-bool checkCollision(double playerX, double playerY, double playerZ, int& collidedTankIndex) {
+bool checkTankCollision(double playerX, double playerY, double playerZ, int& collidedTankIndex) {
 	// Check collision of player with tanks
 	const double playerRadius = 1.0; // Adjust this radius to fit your game's collision detection needs
 
@@ -481,7 +480,7 @@ bool checkCollision(double playerX, double playerY, double playerZ, int& collide
 		double tankY = 0; // Assuming tanks are at ground level
 		double tankZ = tanksposition[i][1];
 
-		const double tankRadius = 1.0; // Adjust this radius to fit your tanks' size
+		const double tankRadius = 10.0; // Adjust this radius to fit your tanks' size
 
 		// Calculate the distance between player and tank
 		double dist = distance(playerX, playerY, playerZ, tankX, tankY, tankZ);
@@ -495,7 +494,29 @@ bool checkCollision(double playerX, double playerY, double playerZ, int& collide
 
 	return false; // No collision
 }
+bool checkCoinCollision(double playerX, double playerY, double playerZ, int& collidedCoinIndex) {
+	// Check collision of player with tanks
+	const double playerRadius = 1.0; // Adjust this radius to fit your game's collision detection needs
 
+	for (int i = 0; i < 4; ++i) {
+		double coinX = coinsposition[i][0];
+		double coinY = 0; // Assuming tanks are at ground level
+		double coinZ = coinsposition[i][1];
+
+		const double tankRadius = 5.0; // Adjust this radius to fit your tanks' size
+
+		// Calculate the distance between player and tank
+		double dist = distance(playerX, playerY, playerZ, coinX, coinY, coinZ);
+
+		// If the distance is less than the sum of their radii, it's a collision
+		if (dist < (playerRadius + tankRadius)) {
+			collidedCoinIndex = i;
+			return true; // Collision detected with tank[i]
+		}
+	}
+
+	return false; // No collision
+}
 /*bool checkTankCollision(double playerX, double playerY, double playerZ) {
 	if ((playerX == 0 && playerY == 0 && playerZ == -180) ||
 		(playerX == -1 && playerY == 0 && playerZ == -180) ||
@@ -540,7 +561,7 @@ bool checkCollision(double playerX, double playerY, double playerZ, int& collide
 
 void tankCollided() {
 	int collidedTankIndex = -1; // Initialize to an invalid index
-	bool collided = checkCollision(playerX, playerY, playerZ, collidedTankIndex);
+	bool collided = checkTankCollision(playerX, playerY, playerZ, collidedTankIndex);
 	if (collided) {
 		if (collidedTankIndex != -1) {
 			tanks[collidedTankIndex] = 0; // Set visibility flag of collided tank to 0 to make it disappear
@@ -554,7 +575,7 @@ void tankCollided() {
 void coinCollided() {
 
 	int collidedCoinIndex = -1; // Initialize to an invalid index
-	bool collided = checkCollision(playerX, playerY, playerZ, collidedCoinIndex);
+	bool collided = checkCoinCollision(playerX, playerY, playerZ, collidedCoinIndex);
 	if (collided) {
 		if (collidedCoinIndex != -1) {
 			coins[collidedCoinIndex] = 0; // Set visibility flag of collided tank to 0 to make it disappear
@@ -662,6 +683,7 @@ void checkPlanetReached() {
 			playerX = 0;
 			playerY = 0;
 			playerZ = 0;
+			score = 0;
 		}
 		cout << "Planet reached" << firstEnvironment;
 	}
@@ -731,28 +753,17 @@ void fuelDuration() {
 	int i = 0;
 	for (i; i < 50; i++) {
 		Fuel--;
-		if (Fuel == 0)
-			gameState = GAME_OVER_LOSE;
+		if (Fuel <= 0) {
+			lost = true;
+			GameOver = true;
+		}
 		break;
 	}
 
 }
 
 
-void drawLoseScreen() {
 
-	glClearColor(1, 0, 0, 0);
-	print(44, 70, 100, 1, 1, 1, "Game Over!");
-	//printScore(45, 65, 100, 1, 1, 1);
-	print(40, 60, 100, 1, 1, 1, "Press Enter to Play Again");
-}
-void drawWinScreen() {
-
-	glClearColor(0, 1, 0, 0);
-	print(40, 70, 100, 1, 1, 1, "Congratulations You won !");
-	//printScore(46, 65, 100, 1, 1, 1);
-	print(40, 60, 100, 1, 1, 1, "Press Enter to Play Again");
-}
 void drawHealthBar() {
 	glPushMatrix();
 
@@ -779,19 +790,6 @@ void drawHealthBar() {
 }
 
 
-void gameScreen() {
-	switch (gameState) {
-	case PLAYING://normal
-		break;
-	case GAME_OVER_WIN:
-		drawWinScreen();
-		break;
-	case GAME_OVER_LOSE:
-		drawLoseScreen();
-		break;
-	}
-
-}
 
 void setupLights() {
 	GLfloat ambient[] = { 0.7f, 0.7f, 0.7, 1.0f };
@@ -1004,7 +1002,9 @@ void Display() {
 			printScore(camera.eye.x - 1, camera.eye.y - 0.1, camera.eye.z - 2, 1, 0, 0);
 			glEnable(GL_LIGHTING);
 			glPopMatrix();
+
 		}
+
 	}
 else {
 	setupCamera();
