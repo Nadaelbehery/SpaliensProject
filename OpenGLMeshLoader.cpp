@@ -10,7 +10,7 @@
 using namespace std;
 int WIDTH = 1280;
 int HEIGHT = 720;
-int Fuel = 350;
+int Fuel = 4000;
 
 GLuint tex;
 GLuint fuel_tex;
@@ -676,9 +676,10 @@ BOOLEAN playerHitComet() {
 void checkPlanetReached() {
 	
 
-	if( (abs(playerZ + 470) <= 33) && (abs(playerX - 0) <= 15)) {
+	if( (abs(playerZ + 470) <= 33) && (abs(playerX - 0) <=30)) {
 		if (firstEnvironment) {
 			firstEnvironment = false; // Collision detected
+			firstPerson = false;
 			camera.setFrontView();
 			playerX = 0;
 			playerY = 0;
@@ -689,6 +690,18 @@ void checkPlanetReached() {
 	}
 
 }
+
+
+void checkRechedMapEnd() {
+
+
+	if ((abs(playerZ + 650) <= 33)){
+		GameOver = true;
+		lost = true;
+	}
+
+}
+
 
 
 //void drawAlienShip() {
@@ -865,12 +878,73 @@ void displayHealth(float x, float y, float z, float r, float g, float b) {
 
 
 }
+
+
+
+void moveForward() {
+	checkPlanetReached();
+	checkRechedMapEnd();
+	if (firstEnvironment) {
+		if (!playerHitComet()) {
+			if (firstPerson) {
+				camera.moveZ(2 * 0.5);//needs to be adjusted based on player speed
+				//camera.moveY(d / 4);
+
+				//model_spacecraft.pos.z = model_spacecraft.pos.z - playerSpeed*0.1;
+
+				//playerZ = playerZ - 1;
+			}
+			else {
+				camera.moveZ(2 * 0.5);//needs to be adjusted based on player speed
+				camera.moveY(0.5 / 2);
+			}
+			//model_spacecraft.pos.z = model_spacecraft.pos.z - playerSpeed*0.1;
+
+			playerZ = playerZ - 1;
+		}
+		else {
+			if (firstPerson) {
+				camera.moveZ(2 * 0.5);//needs to be adjusted based on player speed
+				//camera.moveY(d / 4);
+
+				//model_spacecraft.pos.z = model_spacecraft.pos.z - playerSpeed*0.1;
+
+				//playerZ = playerZ - 1;
+			}
+			else {
+				camera.moveZ(2 * 0.5);//needs to be adjusted based on player speed
+				camera.moveY(0.5 / 2);
+			}
+			camera.moveX(40);
+			playerX = playerX - 40;
+		}
+	}
+	else {
+		if (firstPerson) {
+			camera.moveZ(2 * 0.5);//needs to be adjusted based on player speed
+			//camera.moveY(d / 4);
+
+			//model_spacecraft.pos.z = model_spacecraft.pos.z - playerSpeed*0.1;
+
+			//playerZ = playerZ - 1;
+		}
+		else {
+			camera.moveZ(2 * 0.5);//needs to be adjusted based on player speed
+			camera.moveY(0.5 / 2);
+		}
+		//model_spacecraft.pos.z = model_spacecraft.pos.z - playerSpeed*0.1;
+
+		playerZ = playerZ - 1;
+	}
+}
+
 void timer(int value) {
+	moveForward();
 	// Redraw the scene
 	glutPostRedisplay();
 
 	// Restart the timer
-	int timerInterval = 1000; // 1000 milliseconds = 1 second
+	int timerInterval = 10; // 1000 milliseconds = 1 second
 	glutTimerFunc(timerInterval, timer, 0);
 }
 void renderBitmapString(float x, float y, void* font, const char* string) {
@@ -1041,6 +1115,16 @@ else {
 
 bool rotateLeft = false;
 bool rotateRight = false;
+
+const float boundaryLeft = -70.0f;  
+const float boundaryRight = 70.0f;
+
+const float forwardSpeed = 0.1f;  // Set your desired forward speed
+
+
+
+
+
 void Keyboard(unsigned char key, int x, int y) {
 	float d = 0.50;
 
@@ -1087,6 +1171,7 @@ void Keyboard(unsigned char key, int x, int y) {
 		break;
 	case 'w':
 		checkPlanetReached();
+		checkRechedMapEnd();
 
 		if (!playerHitComet()) {
 			if (firstPerson) {
@@ -1109,17 +1194,16 @@ void Keyboard(unsigned char key, int x, int y) {
 		//playerHitComet();
 		break;
 
-
 	case 'a':
-		camera.moveX(2 * d);
+		if (camera.eye.x - 2 * d >= boundaryLeft) {
+			camera.moveX(2 * d);
 
-		if (!rotateLeft) {
-			model_spacecraft.rot.z = model_spacecraft.rot.z + 15.0f;
-			rotateLeft = true; // Set the flag to true to indicate rotation occurred
+			if (!rotateLeft) {
+				model_spacecraft.rot.z = model_spacecraft.rot.z + 15.0f;
+				rotateLeft = true; // Set the flag to true to indicate rotation occurred
+			}
+			playerX = playerX - 1;
 		}
-		//model_spacecraft.pos.x = model_spacecraft.pos.x - playerSpeed;
-		playerX = playerX - 1;
-
 		break;
 	case 's':
 		camera.moveZ(-2 * d);
@@ -1129,15 +1213,15 @@ void Keyboard(unsigned char key, int x, int y) {
 		//model_spacecraft.pos.z = model_spacecraft.pos.z + playerSpeed;
 		break;
 	case 'd':
-		camera.moveX(-2 * d);
+		if (camera.eye.x + 2 * d <= boundaryRight) {
+			camera.moveX(-2 * d);
 
-		if (!rotateRight) {
-			model_spacecraft.rot.z = model_spacecraft.rot.z - 15.0f;
-			rotateRight = true; // Set the flag to true to indicate rotation occurred
+			if (!rotateRight) {
+				model_spacecraft.rot.z = model_spacecraft.rot.z - 15.0f;
+				rotateRight = true; // Set the flag to true to indicate rotation occurred
+			}
+			playerX = playerX + 1;
 		}
-		//model_spacecraft.pos.x = model_spacecraft.pos.x + playerSpeed;
-		playerX = playerX + 1;
-
 		break;
 	case 'e':
 		model_spacecraft.rot.z = model_spacecraft.rot.z + 15.0f;
@@ -1247,6 +1331,7 @@ void mouseButton(int button, int state, int x, int y) {
 		}
 	}
 }
+
 
 
 void main(int argc, char** argv) {
