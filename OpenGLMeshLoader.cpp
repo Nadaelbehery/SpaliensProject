@@ -471,7 +471,7 @@ double distance(double x1, double y1, double z1, double x2, double y2, double z2
 	return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2) + pow(z2 - z1, 2));
 }
 
-bool checkTankCollision(double playerX, double playerY, double playerZ, int& collidedTankIndex) {
+bool checkTankCollision() {
 	// Check collision of player with tanks
 	const double playerRadius = 1.0; // Adjust this radius to fit your game's collision detection needs
 
@@ -486,15 +486,19 @@ bool checkTankCollision(double playerX, double playerY, double playerZ, int& col
 		double dist = distance(playerX, playerY, playerZ, tankX, tankY, tankZ);
 
 		// If the distance is less than the sum of their radii, it's a collision
-		if (dist < (playerRadius + tankRadius)) {
-			collidedTankIndex = i;
+		if (dist < (playerRadius + tankRadius) && tanks[i] == 1) {
+			tanks[i] = 0;
+			score += 2;
+			Fuel = 350;
+
+			//collidedTankIndex = i;
 			return true; // Collision detected with tank[i]
 		}
 	}
 
 	return false; // No collision
 }
-bool checkCoinCollision(double playerX, double playerY, double playerZ, int& collidedCoinIndex) {
+bool checkCoinCollision() {
 	// Check collision of player with tanks
 	const double playerRadius = 1.0; // Adjust this radius to fit your game's collision detection needs
 
@@ -503,14 +507,15 @@ bool checkCoinCollision(double playerX, double playerY, double playerZ, int& col
 		double coinY = 0; // Assuming tanks are at ground level
 		double coinZ = coinsposition[i][1];
 
-		const double tankRadius = 5.0; // Adjust this radius to fit your tanks' size
+		const double coinRadius = 5.0; // Adjust this radius to fit your tanks' size
 
 		// Calculate the distance between player and tank
 		double dist = distance(playerX, playerY, playerZ, coinX, coinY, coinZ);
 
 		// If the distance is less than the sum of their radii, it's a collision
-		if (dist < (playerRadius + tankRadius)) {
-			collidedCoinIndex = i;
+		if (dist < (playerRadius + coinRadius) && coins[i] == 1) {
+			coins[i] = 0;
+			score += 2;
 			return true; // Collision detected with tank[i]
 		}
 	}
@@ -555,41 +560,6 @@ bool checkCoinCollision(double playerX, double playerY, double playerZ, int& col
 	}
 	return true; // Collision detected
 }*/
-
-
-
-
-void tankCollided() {
-	int collidedTankIndex = -1; // Initialize to an invalid index
-	bool collided = checkTankCollision(playerX, playerY, playerZ, collidedTankIndex);
-	if (collided) {
-		if (collidedTankIndex != -1) {
-			tanks[collidedTankIndex] = 0; // Set visibility flag of collided tank to 0 to make it disappear
-			// Other actions you want to take upon collision...
-			
-			Fuel = 300;
-			score += 2;
-		}
-	}
-}
-void coinCollided() {
-
-	int collidedCoinIndex = -1; // Initialize to an invalid index
-	bool collided = checkCoinCollision(playerX, playerY, playerZ, collidedCoinIndex);
-	if (collided) {
-		if (collidedCoinIndex != -1) {
-			coins[collidedCoinIndex] = 0; // Set visibility flag of collided tank to 0 to make it disappear
-			// Other actions you want to take upon collision...
-
-			
-			score += 2;
-		}
-	}
-}
-
-
-
-
 
 
 
@@ -972,7 +942,7 @@ void Display() {
 			glPushMatrix();
 			drawTanks();
 			glPopMatrix();
-			tankCollided();
+			checkTankCollision();
 			fuelDuration();
 
 			moonRotationAngle += 1.5f;
@@ -1060,7 +1030,7 @@ void Display() {
 			glPushMatrix();
 			drawCoins();
 			glPopMatrix();
-			coinCollided();
+			checkCoinCollision();
 
 			// Draw spacecraft Model
 			glPushMatrix();
