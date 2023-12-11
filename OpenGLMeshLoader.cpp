@@ -67,12 +67,12 @@ bool wonTwo = false;// won second game move to next scene
 bool lost = false; //won first game move to second environment
 
 int playerSpeed = 10;
-int coinX;
-int coinY;
-int coinZ;
-int tankX;
-int tankY;
-int tankZ;
+int coinX ;
+int coinY ;
+int coinZ ;
+int tankX ;
+int tankY ;
+int tankZ ;
 float playerX = 0;
 float playerY = 0;
 float playerZ = 0;
@@ -432,8 +432,8 @@ void drawCoins() {
 void initTanks() {
 	for (int i = 0; i < 4 && tanks[i] == 1; i++) {
 
-
-		tankX = tanksposition[i][0];
+	
+	    tankX = tanksposition[i][0];
 		tankZ = tanksposition[i][1];
 		glPushMatrix();
 		glTranslatef(tankX, 0, tankZ);
@@ -468,7 +468,7 @@ void drawTanks() {
 }
 #include <cmath>
 
-//  function to calculate the distance between two points in 3D space
+// Define a function to calculate the distance between two points in 3D space
 double distance(double x1, double y1, double z1, double x2, double y2, double z2) {
 	return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2) + pow(z2 - z1, 2));
 }
@@ -501,6 +501,39 @@ bool checkTankCollision() {
 
 	return false; // No collision
 }
+
+bool checkAlienShipCollision() {
+	// Check collision of player with tanks
+	const double playerRadiuss = 1.0; // Adjust this radius to fit your game's collision detection needs
+
+	for (int i = 0; i < 4; ++i) {
+		double alienshipX = alienshipsposition[i][0];
+		double alienshipY = 0; // Assuming tanks are at ground level
+		double alienshipZ = alienshipsposition[i][1];
+
+		const double alienshipRadius = 10.0; // Adjust this radius to fit your tanks' size
+
+		// Calculate the distance between player and tank
+		double dist = distance(playerX, playerY, playerZ, alienshipX, alienshipY, alienshipZ);
+
+		// If the distance is less than the sum of their radii, it's a collision
+		if (dist < (playerRadiuss + alienshipRadius) && alienships[i] == 1) {
+			alienships[i] = 0;
+			score -= 2;
+			playerX -= 40;
+			camera.moveX(40);
+			PlaySound(TEXT("alienship.wav"), NULL, SND_ASYNC);
+			//collidedTankIndex = i;
+			return true; // Collision detected with tank[i]
+		}
+	}
+
+	return false; // No collision
+}
+
+
+
+
 bool checkCoinCollision() {
 	// Check collision of player with tanks
 	const double playerRadius = 1.0; // Adjust this radius to fit your game's collision detection needs
@@ -627,8 +660,8 @@ BOOLEAN playerHitComet() {
 			PlaySound(TEXT("cometHit.wav"), NULL, SND_ASYNC);
 			health = health - 1;
 			if (health == 0) {
-				GameOver = true;
-				lost = true; //won first game move to second environment
+				GameOver=true;
+				lost= true; //won first game move to second environment
 
 			}
 			isCollision = true;
@@ -649,12 +682,13 @@ BOOLEAN playerHitComet() {
 
 
 void checkPlanetReached() {
+	
 
-
-	if ((abs(playerZ + 470) <= 33) && (abs(playerX - 0) <= 30)) {
+	if( (abs(playerZ + 470) <= 33) && (abs(playerX - 0) <=30)) {
 		if (firstEnvironment) {
 			firstEnvironment = false; // Collision detected
 			firstPerson = false;
+			PlaySound(TEXT("start.wav"), NULL, SND_ASYNC);
 			camera.setFrontView();
 			playerX = 0;
 			playerY = 0;
@@ -670,7 +704,7 @@ void checkPlanetReached() {
 void checkRechedMapEnd() {
 
 
-	if ((abs(playerZ + 650) <= 33)) {
+	if ((abs(playerZ + 650) <= 33)){
 		GameOver = true;
 		lost = true;
 	}
@@ -923,7 +957,7 @@ void timer(int value) {
 	glutTimerFunc(timerInterval, timer, 0);
 }
 void renderBitmapString(float x, float y, void* font, const char* string) {
-	glRasterPos3f(x, y, -1);
+	glRasterPos3f(x, y,-1);
 
 	while (*string) {
 		glutBitmapCharacter(font, *string);
@@ -999,12 +1033,11 @@ void Display() {
 
 			displayHealth(camera.eye.x - 1, camera.eye.y, camera.eye.z - 2, 1, 0, 0);
 			printFuel(camera.eye.x - 1, camera.eye.y - 0.05, camera.eye.z - 2, 1, 0, 0);
-			printScore(camera.eye.x - 1, camera.eye.y -0.1, camera.eye.z - 2, 1, 0, 0);
-			//printScore(camera.eye.x - 1, camera.eye.y , camera.eye.z - 2, 1, 0, 0);
+			printScore(camera.eye.x - 1, camera.eye.y - 0.1, camera.eye.z - 2, 1, 0, 0);
 			glEnable(GL_LIGHTING);
 			glPopMatrix();
 			/*if (isCollision) {
-				glPushMatrix();
+				glPushMatrix();								
 				drawExplosion();
 				glPopMatrix();
 				isCollision = false;
@@ -1014,9 +1047,9 @@ void Display() {
 		else {
 			//second environmet
 				//sky box
-			//loadBMP(&tex, "Textures/universe.bmp", true);
+
 			glPushMatrix();
-			//loadBMP(&tex, "Textures/universe.bmp", true);
+
 			GLUquadricObj* qobj;
 			qobj = gluNewQuadric();
 			glTranslated(50, 0, 0);
@@ -1029,10 +1062,12 @@ void Display() {
 			glBindTexture(GL_TEXTURE_2D, 0);
 
 			glPopMatrix();
+
+			glPopMatrix();
 			glPushMatrix();
 			drawAlienShips();
 			glPopMatrix();
-
+			checkAlienShipCollision();
 			glPushMatrix();
 			drawCoins();
 			glPopMatrix();
@@ -1049,42 +1084,42 @@ void Display() {
 			glPushMatrix();
 			glDisable(GL_LIGHTING);
 			glBindTexture(GL_TEXTURE_2D, 0);
-			printScore(camera.eye.x - 1, camera.eye.y , camera.eye.z - 2, 1, 0, 0);
+			printScore(camera.eye.x - 1, camera.eye.y - 0.1, camera.eye.z - 2, 1, 0, 0);
 			glEnable(GL_LIGHTING);
 			glPopMatrix();
 
 		}
 
 	}
+else {
+	setupCamera();
+	setupLights();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glPushMatrix();
+	glDisable(GL_LIGHTING);
+
+	glBindTexture(GL_TEXTURE_2D, 0); // prevents the color of the text from being changed
+	//displayHealth(camera.eye.x - 1, camera.eye.y, camera.eye.z - 2, 1, 0, 0);
+	string h ;
+
+	if (lost) {
+	 h = "Game Over.You lost!";
+
+	}
 	else {
-		setupCamera();
-		setupLights();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glPushMatrix();
-		glDisable(GL_LIGHTING);
+		h = "You Won!";
 
-		glBindTexture(GL_TEXTURE_2D, 0); // prevents the color of the text from being changed
-		//displayHealth(camera.eye.x - 1, camera.eye.y, camera.eye.z - 2, 1, 0, 0);
-		string h;
-
-		if (lost) {
-			h = "Game Over.You lost!";
-
-		}
-		else {
-			h = "You Won!";
-
-		}
-		char hChar[1024];
-		strncpy(hChar, h.c_str(), sizeof(hChar));
-		hChar[sizeof(hChar) - 1] = 0;
-		print(camera.eye.x - 1, camera.eye.y - 0.1, camera.eye.z - 2, 1.0, 0.0, 0.0, hChar);
-		glPopMatrix();
+	}
+	char hChar[1024];
+	strncpy(hChar, h.c_str(), sizeof(hChar));
+	hChar[sizeof(hChar) - 1] = 0;
+	print(camera.eye.x - 1, camera.eye.y - 0.1, camera.eye.z - 2, 1.0,  0.0, 0.0, hChar);
+	glPopMatrix();
 
 
 
 	}
-
+	
 	glFlush();
 	glutSwapBuffers();
 }
@@ -1092,7 +1127,7 @@ void Display() {
 bool rotateLeft = false;
 bool rotateRight = false;
 
-const float boundaryLeft = -70.0f;
+const float boundaryLeft = -70.0f;  
 const float boundaryRight = 70.0f;
 
 const float forwardSpeed = 0.1f;  // Set your desired forward speed
@@ -1213,14 +1248,14 @@ void Keyboard(unsigned char key, int x, int y) {
 		break;
 	case 'l':
 		firstPerson = true;
-		camera.eye = Vector3f(playerX, playerY + 4, playerZ + 5);
-		camera.center = Vector3f(playerX, playerY + 4, playerZ - 5);
+		camera.eye = Vector3f(playerX, playerY+4, playerZ + 5);
+		camera.center= Vector3f(playerX, playerY+4, playerZ - 5);
 		//camera.setFrontView();
 		break;
 	case 'm':
 		firstPerson = false;
 		camera.eye = Vector3f(playerX, playerY + 15, playerZ + 60);
-		camera.center = Vector3f(playerX, playerY, playerZ);
+		camera.center = Vector3f(playerX, playerY, playerZ );
 
 		//camera.setFrontView();
 		break;
@@ -1279,7 +1314,6 @@ void Special(int key, int x, int y) {
 	glutPostRedisplay();
 }
 void init() {
-
 	initComets();
 	camera.setFrontView();
 
