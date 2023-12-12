@@ -24,6 +24,11 @@ char title[] = "3D Model Loader Sample";
 bool isLaserActive = false;
 float laserY = 0.0f;
 float laserRotation = 0.0f;
+bool alienCollision_1 = false;
+bool alienCollision_2 = false;
+bool alienCollision_3 = false;
+bool alienCollision_4 = false;
+
 //DAREEN firstPersonCamera
 bool firstPerson = false;
 // 3D Projection Options
@@ -277,34 +282,23 @@ void drawExplosion() {
 
 void drawLaser() {
 	glPushMatrix();
-	glColor3f(1.0f, 0.0f, 0.0f); // Red color for the laser
-
+	glColor3f(1, 0, 0); // Red color for the laser
 	// Rotate the laser beam
-	glTranslatef(playerX, laserY, 0.0f);
-	glRotatef(laserRotation, 0.0f, 0.0f, 1.0f);
+	glTranslatef(playerX, 0.0f, playerZ-20);
+	glRotated(-5, 0, 0, 1); // Rotation around the Z-axis to keep it in the XY plane
+	glRotated(-90, 0, 1, 0); // Rotation around the Z-axis to keep it in the XY plane
+	float laserLength = 30.0f;
+	float laserWidth = 40.0f;
 
-	// Draw three parallel lines with increased thickness
-	glLineWidth(3.0f); // Set the line width to make it thicker
-
-	glBegin(GL_LINE_STRIP);
-	glVertex3f(0.0f, 0.0f, 0.0f);
-	glVertex3f(0.0f, 1.0f, 0.0f); // First line
+	glBegin(GL_QUADS);
+	glVertex3f(-laserWidth / 2, 0, 0); // Bottom left vertex
+	glVertex3f(laserWidth / 2, 0, 0); // Bottom right vertex
+	glVertex3f(laserWidth / 2, laserLength, 0); // Top right vertex
+	glVertex3f(-laserWidth / 2, laserLength, 0); // Top left vertex
 	glEnd();
-
-	glBegin(GL_LINE_STRIP);
-	glVertex3f(0.05f, 0.0f, 0.0f);
-	glVertex3f(0.05f, 1.0f, 0.0f); // Second line
-	glEnd();
-
-	glBegin(GL_LINE_STRIP);
-	glVertex3f(-0.05f, 0.0f, 0.0f);
-	glVertex3f(-0.05f, 1.0f, 0.0f); // Third line
-	glEnd();
-
-	glLineWidth(1.0f); // Reset the line width to the default value
-
 	glPopMatrix();
 }
+
 void LoadAssets()
 {
 	// Loading Model files
@@ -623,14 +617,14 @@ void drawComets() {
 	}
 }
 BOOLEAN playerHitComet() {
-	cout << "X player" << playerX;
-	cout << "\n";
+	//cout << "X player" << playerX;
+	//cout << "\n";
 
-	cout << "Y player " << playerY;
-	cout << "\n";
+	//cout << "Y player " << playerY;
+	//cout << "\n";
 
-	cout << "Z player " << playerZ;
-	cout << "\n";
+	//cout << "Z player " << playerZ;
+	//cout << "\n";
 	for (int i = 0; i < 12 && commets[i] == 1; i++) {
 		float posX = commetsPosition[i][0];
 		float posY = 0;
@@ -1081,7 +1075,13 @@ void Display() {
 			glScalef(0.1, 0.1, 0.1);
 			model_spacecraft.Draw();
 			glPopMatrix();
-
+		
+			if (isLaserActive) {
+				//draw Laser Beam 
+				glPushMatrix();
+				drawLaser();
+				glPopMatrix();
+			}
 
 			glPushMatrix();
 			glDisable(GL_LIGHTING);
@@ -1241,6 +1241,7 @@ void Keyboard(unsigned char key, int x, int y) {
 		model_spacecraft.rot.z = model_spacecraft.rot.z + 15.0f;
 		break;
 	case 'k':
+		
 		// Toggle the laser when the 'k' key is pressed
 		isLaserActive = !isLaserActive;
 		if (isLaserActive) {
