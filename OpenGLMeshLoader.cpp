@@ -321,7 +321,7 @@ void LoadAssets()
 	}
 
 	for (int i = 0; i < 4; i++) {
-		model_tank[i].Load("Models/fuelTank/uploads_files_3640174_jerrycan_1.3ds");
+		model_tank[i].Load("Models/fuelTank/gasContain.3DS");
 	}
 	//model_moon.Load("Models/MoonZ/moon.3ds");
 	//model_tank.Load("Models/fuelTank/uploads_files_3640174_jerrycan_1.3ds");
@@ -456,8 +456,9 @@ void drawTanks() {
 	for (int i = 0; i < numTanks; i++) {
 		if (tanks[i] == 1) {
 			glPushMatrix();
-			glTranslatef(tanksposition[i][0], -5, tanksposition[i][1]);
-			glScalef(0.2, 0.15, 0.2);
+			glTranslatef(tanksposition[i][0], -2, tanksposition[i][1]);
+			glRotatef(90, 1, 0, 0);
+			glScalef(0.5, 0.15, 0.2);
 
 			// Only draw the tank if it's visible (tanks[i] == 1)
 			model_tank[i].Draw();
