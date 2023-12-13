@@ -487,16 +487,16 @@ double distance(double x1, double y1, double z1, double x2, double y2, double z2
 
 void checkTankCollision() {
 	// Check collision of player with tanks
-	const double playerRadius = 1.0;
+	const double playerRadius = 1.0; 
 
 	for (int i = 0; i < 8; ++i) {
 		double tankX = tanksposition[i][0];
-		double tankY = 0;
+		double tankY = 0; 
 		double tankZ = tanksposition[i][1];
 
-		const double tankRadius = 10.0;
+		const double tankRadius = 10.0; 
 
-
+		
 		double dist = distance(playerX, playerY, playerZ, tankX, tankY, tankZ);
 
 		// If the distance is less than the sum of their radii, it's a collision
@@ -506,44 +506,41 @@ void checkTankCollision() {
 			Fuel += 350;
 			PlaySound(TEXT("fuelTank.wav"), NULL, SND_ASYNC);
 
-
+			
 		}
 	}
 
 }
 
 void checkAlienShipCollision() {
-
-	const double playerRadiuss = 1.0;
+	
+	const double playerRadiuss = 1.0; 
 
 	for (int i = 0; i < 4; ++i) {
 		double alienshipX = alienshipsposition[i][0];
-		double alienshipY = 0;
+		double alienshipY = 0; 
 		double alienshipZ = alienshipsposition[i][1];
 
-		const double alienshipRadius = 10.0;
-
-
+		const double alienshipRadius = 10.0; 
 		double dist = distance(playerX, playerY, playerZ, alienshipX, alienshipY, alienshipZ);
 
-
+		
 		if (dist < (playerRadiuss + alienshipRadius) && alienships[i] == 1) {
 			//alienships[i] = 0;
 			health -= 2;
 			playerX -= 40;
 			camera.moveX(40);
 			PlaySound(TEXT("alienship.wav"), NULL, SND_ASYNC);
-
+		
 		}
 	}
-
 }
 bool checkAlienLaserCollision() {
-
-	const double laserRadius = 10.0;
-	for (int i = 0; i < 3; ++i) {
+	
+	const double laserRadius = 10.0; 
+	for (int i = 0; i < 4; ++i) {
 		double alienshipX = alienshipsposition[i][0];
-		double alienshipY = 0;
+		double alienshipY = 0; 
 		double alienshipZ = alienshipsposition[i][1];
 
 		cout << "ALIENSHIPX:" << alienshipX;
@@ -553,9 +550,9 @@ bool checkAlienLaserCollision() {
 		cout << "ALIENSHIPZ:" << alienshipZ;
 		cout << "\n";
 
-		const double alienshipRadius = 10.0;
+		const double alienshipRadius = 10.0; 
 
-
+	
 		double dist = distance(playerX + 10, playerY, playerZ + 10, alienshipX, alienshipY, alienshipZ);
 		cout << "Distance:" << dist;
 		cout << "\n";
@@ -567,7 +564,7 @@ bool checkAlienLaserCollision() {
 			cout << "LEVEELL:" << countLevel;
 			cout << "\n";
 			return true;
-
+			
 		}
 	}
 	//GameOver = true;
@@ -583,30 +580,30 @@ bool checkAlienLaserCollision() {
 
 
 void checkCoinCollision() {
-
-	const double playerRadius = 1.0;
+	
+	const double playerRadius = 1.0; 
 
 	for (int i = 0; i < 4; ++i) {
 		double coinX = coinsposition[i][0];
-		double coinY = 0;
+		double coinY = 0; 
 		double coinZ = coinsposition[i][1];
 
-		const double coinRadius = 5.0;
+		const double coinRadius = 5.0; 
 
-
+	
 		double dist = distance(playerX, playerY, playerZ, coinX, coinY, coinZ);
 
-
+		
 		if (dist < (playerRadius + coinRadius) && coins[i] == 1) {
 			coins[i] = 0;
 			score += 2;
 			PlaySound(TEXT("SpeedBooster.wav"), NULL, SND_ASYNC);
 
-
+		
 		}
 	}
 
-
+	
 }
 
 
@@ -1233,6 +1230,7 @@ void Display() {
 				cout << "\n";
 				h = "You passed level 4!";
 			}
+
 
 		}
 		char hChar[1024];
