@@ -57,14 +57,14 @@ int coins[4] = { 1,1,1,1 };
 int flag;
 Model_3DS model_tank[8];
 float tanksposition[8][2] = { {-100,-70},{-50,-300} ,{0,-180} ,{50,-170},{-37,-420},{33,-650},{80,-170},{0,-700} };
-int tanks[8] = { 1,1,1,1,1,1,1,1};
+int tanks[8] = { 1,1,1,1,1,1,1,1 };
 
 Model_3DS model_tree;
 Model_3DS model_moon;
 Model_3DS model_speedBooster;
 Model_3DS shootingStar;
 
-int shootingX=-90;
+int shootingX = -90;
 //int shootingZ;
 
 
@@ -291,10 +291,10 @@ void drawLaser() {
 	// Rotate the laser beam
 	glTranslatef(playerX, playerY, playerZ - 20);
 	cout << "LASERX" << playerX;
-    cout << "\n";
+	cout << "\n";
 	cout << "LASERY" << playerY;
 	cout << "\n";
-	cout << "LASERZ" << playerZ-20;
+	cout << "LASERZ" << playerZ - 20;
 	cout << "\n";
 	glRotated(-5, 0, 0, 1); // Rotation around the Z-axis to keep it in the XY plane
 	glRotated(-90, 0, 1, 0); // Rotation around the Z-axis to keep it in the XY plane
@@ -319,7 +319,7 @@ void LoadAssets()
 	}
 	model_tree.Load("Models/tree/Tree1.3ds");
 	for (int i = 0; i < 4; i++) {
-		model_alienship[i].Load("Models/spacecraft/alienship2.3DS");
+		model_alienship[i].Load("Models/spacecraft/COMBAT-ship_01.3DS");
 	}
 	for (int i = 0; i < 4; i++) {
 		model_coin[i].Load("Models/coin/Coin 2.3DS");
@@ -328,7 +328,7 @@ void LoadAssets()
 	for (int i = 0; i < 8; i++) {
 		model_tank[i].Load("Models/fuelTank/gasContain.3DS");
 	}
-    shootingStar.Load("Models/commet/asteroid 3DS.3DS");
+	shootingStar.Load("Models/commet/asteroid 3DS.3DS");
 
 	//model_moon.Load("Models/MoonZ/moon.3ds");
 	//model_tank.Load("Models/fuelTank/uploads_files_3640174_jerrycan_1.3ds");
@@ -370,7 +370,7 @@ void initAlienShips() {
 		//float zPosition = -100 + (rand() % 1);
 		float xPosition = alienshipsposition[i][0];
 		float zPosition = alienshipsposition[i][1];
-		
+
 
 		//model_commet[i].pos.z = zPosition - model_spacecraft.pos.z;
 
@@ -396,7 +396,7 @@ void drawAlienShips() {
 
 		glPushMatrix();
 		glTranslatef(alienshipsposition[i][0], 0, alienshipsposition[i][1]);
-		glScalef(0.02, 0.02, 0.02);
+		glScalef(0.05, 0.05, 0.05);
 		glRotatef(90, 1, 0, 0);
 		model_alienship[i].Draw();
 		glPopMatrix();
@@ -555,11 +555,11 @@ bool checkAlienLaserCollision() {
 		const double alienshipRadius = 10.0; // Adjust this radius to fit your tanks' size
 
 		// Calculate the distance between player and tank
-		double dist = distance(playerX+10, playerY, playerZ+10, alienshipX, alienshipY, alienshipZ);
+		double dist = distance(playerX + 10, playerY, playerZ + 10, alienshipX, alienshipY, alienshipZ);
 		cout << "Distance:" << dist;
 		cout << "\n";
 		// If the distance is less than the sum of their radii, it's a collision
-		if (-21 < (alienshipZ-(playerZ-20)) && alienships[i] == 1) {
+		if (-21 < (alienshipZ - (playerZ - 20)) && alienships[i] == 1) {
 			cout << "DAREEEEENNNN";
 			alienships[i] = 0;
 			countLevel++;
@@ -734,7 +734,7 @@ BOOLEAN playerHitComet() {
 				lost = true; //won first game move to second environment
 
 			}
-		
+
 			isCollision = true;
 			return true;
 			//commets[i] = 0;
@@ -905,9 +905,9 @@ void setupLights() {
 	GLfloat lightPosition[] = { -7.0f, 6.0f, 3.0f, 0.0f };
 	glLightfv(GL_LIGHT0, GL_POSITION, lightIntensity);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, lightIntensity);
-;
+	;
 }
-void setMoonLight(){
+void setMoonLight() {
 	glEnable(GL_LIGHT1);
 	GLfloat l0Diffuse[] = { 1, 0, 0, 1.0f };
 	GLfloat increasedIntensity = 2.0f;
@@ -938,7 +938,7 @@ void setupStars() {
 
 	GLfloat l0Spec[] = { 1.0f, 1.0f, 0.0f, 1.0f };
 	GLfloat l0Ambient[] = { 0.0f, 0.0f, 0.0, 1.0f };
-	GLfloat l0Position[] = {shootingX ,20,playerZ-40,1 };
+	GLfloat l0Position[] = { shootingX ,20,playerZ - 40,1 };
 	GLfloat l0Direction[] = { 0.0, 1.0, 1.0 };
 
 	glLightfv(GL_LIGHT3, GL_DIFFUSE, l0Diffuse);
@@ -947,7 +947,7 @@ void setupStars() {
 	/*glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 30.0);
 	glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, 90.0);*/
 	glLightfv(GL_LIGHT3, GL_SPOT_DIRECTION, l0Direction);
-    
+
 }
 
 void setspaceshipLight() {
@@ -1222,12 +1222,12 @@ void Display() {
 			glPopMatrix();
 			glPushMatrix();
 			if (shootingX < 90) {
-				shootingX+=1;
+				shootingX += 1;
 			}
 			else {
 				shootingX = -90;
 			}
-			glTranslatef(shootingX,20, playerZ-40);
+			glTranslatef(shootingX, 20, playerZ - 40);
 			glScalef(0.1, 0.1, 0.1);
 			shootingStar.Draw();
 			glPopMatrix();
