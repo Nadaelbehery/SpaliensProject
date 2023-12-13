@@ -48,7 +48,8 @@ float commetsPosition[12][2] = { {-65,-100},{50,-800} ,{-120,-123} ,{-460,-400} 
 int commets[12] = { 1,1,1,1,1,1,1,1,1,1,1,1 };
 
 Model_3DS model_alienship[4];
-float alienshipsposition[4][2] = { {-90,-70},{70,-400} ,{0,-150} ,{-40,-370} };
+//, { 0,-150 }
+float alienshipsposition[3][2] = { {40,-90},{50,-500} ,{30,-370} };
 int alienships[4] = { 1,1,1,1 };
 
 
@@ -389,7 +390,7 @@ void initAlienShips() {
 
 
 void drawAlienShips() {
-	int numAlienShips = 4;
+	int numAlienShips = 3;
 	float viewWidth = 780;
 	float spacing = viewWidth / numAlienShips;
 
@@ -515,7 +516,7 @@ void checkAlienShipCollision() {
 	
 	const double playerRadiuss = 1.0; 
 
-	for (int i = 0; i < 4; ++i) {
+	for (int i = 0; i < 3; ++i) {
 		double alienshipX = alienshipsposition[i][0];
 		double alienshipY = 0; 
 		double alienshipZ = alienshipsposition[i][1];
@@ -540,7 +541,7 @@ void checkAlienShipCollision() {
 bool checkAlienLaserCollision() {
 	
 	const double laserRadius = 10.0; 
-	for (int i = 0; i < 4; ++i) {
+	for (int i = 0; i < 3; ++i) {
 		double alienshipX = alienshipsposition[i][0];
 		double alienshipY = 0; 
 		double alienshipZ = alienshipsposition[i][1];
@@ -1200,24 +1201,29 @@ void Display() {
 		glBindTexture(GL_TEXTURE_2D, 0); // prevents the color of the text from being changed
 		//displayHealth(camera.eye.x - 1, camera.eye.y, camera.eye.z - 2, 1, 0, 0);
 		string h;
-
+		int count = 0;
 		if (lost) {
 			h = "Game Over.You lost!";
 
 		}
 		else {
-			if (countLevel == 1) {
+			for (int i = 0; i < 3; i++) {
+				if (alienships[i] == 0) {
+					count++;
+				}
+			}
+			if (count == 1) {
 				cout << "YOU PASSED LEVEL 1";
 				cout << "\n";
 				h = "You passed level 1!";
 			}
-			if (countLevel == 2) {
+			if (count == 2) {
 				cout << "YOU PASSED LEVEL 2";
 				cout << "\n";
 				h = "You passed level 2!";
 
 			}
-			if (countLevel == 3) {
+			if (count == 3) {
 				cout << "YOU PASSED LEVEL 2";
 				cout << "\n";
 				h = "You passed level 3!";
@@ -1491,7 +1497,6 @@ void main(int argc, char** argv) {
 	glEnable(GL_LIGHT0);
 	glEnable(GL_NORMALIZE);
 	glEnable(GL_COLOR_MATERIAL);
-
 	glShadeModel(GL_SMOOTH);
 
 	init();
