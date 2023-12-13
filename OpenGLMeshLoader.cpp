@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <sstream>
+#include <cmath>
 using namespace std;
 int WIDTH = 1280;
 int HEIGHT = 720;
@@ -475,25 +476,25 @@ void drawTanks() {
 		}
 	}
 }
-#include <cmath>
 
-// Define a function to calculate the distance between two points in 3D space
+
+//  a function to calculate the distance between two points in 3D space
 double distance(double x1, double y1, double z1, double x2, double y2, double z2) {
 	return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2) + pow(z2 - z1, 2));
 }
 
-bool checkTankCollision() {
+void checkTankCollision() {
 	// Check collision of player with tanks
-	const double playerRadius = 1.0; // Adjust this radius to fit your game's collision detection needs
+	const double playerRadius = 1.0; 
 
 	for (int i = 0; i < 8; ++i) {
 		double tankX = tanksposition[i][0];
-		double tankY = 0; // Assuming tanks are at ground level
+		double tankY = 0; 
 		double tankZ = tanksposition[i][1];
 
-		const double tankRadius = 10.0; // Adjust this radius to fit your tanks' size
+		const double tankRadius = 10.0; 
 
-		// Calculate the distance between player and tank
+		
 		double dist = distance(playerX, playerY, playerZ, tankX, tankY, tankZ);
 
 		// If the distance is less than the sum of their radii, it's a collision
@@ -503,46 +504,44 @@ bool checkTankCollision() {
 			Fuel += 350;
 			PlaySound(TEXT("fuelTank.wav"), NULL, SND_ASYNC);
 
-			//collidedTankIndex = i;
-			return true; // Collision detected with tank[i]
+			
 		}
 	}
-	return false; // No collision
+
 }
 
-bool checkAlienShipCollision() {
-	// Check collision of player with tanks
-	const double playerRadiuss = 1.0; // Adjust this radius to fit your game's collision detection needs
+void checkAlienShipCollision() {
+	
+	const double playerRadiuss = 1.0; 
 
 	for (int i = 0; i < 4; ++i) {
 		double alienshipX = alienshipsposition[i][0];
-		double alienshipY = 0; // Assuming tanks are at ground level
+		double alienshipY = 0; 
 		double alienshipZ = alienshipsposition[i][1];
 
-		const double alienshipRadius = 10.0; // Adjust this radius to fit your tanks' size
+		const double alienshipRadius = 10.0; 
 
-		// Calculate the distance between player and tank
+		
 		double dist = distance(playerX, playerY, playerZ, alienshipX, alienshipY, alienshipZ);
 
-		// If the distance is less than the sum of their radii, it's a collision
+		
 		if (dist < (playerRadiuss + alienshipRadius) && alienships[i] == 1) {
 			alienships[i] = 0;
 			health -= 2;
 			playerX -= 40;
 			camera.moveX(40);
 			PlaySound(TEXT("alienship.wav"), NULL, SND_ASYNC);
-			//collidedTankIndex = i;
-			return true; // Collision detected with tank[i]
+		
 		}
 	}
-	return false; // No collision
+	
 }
-bool checkAlienLaserCollision() {
-	// Check collision of player with tanks
-	const double laserRadius = 10.0; // Adjust this radius to fit your game's collision detection needs
+void checkAlienLaserCollision() {
+	
+	const double laserRadius = 10.0; 
 	for (int i = 0; i < 4; ++i) {
 		double alienshipX = alienshipsposition[i][0];
-		double alienshipY = 0; // Assuming tanks are at ground level
+		double alienshipY = 0; 
 		double alienshipZ = alienshipsposition[i][1];
 
 		cout << "ALIENSHIPX:" << alienshipX;
@@ -552,9 +551,9 @@ bool checkAlienLaserCollision() {
 		cout << "ALIENSHIPZ:" << alienshipZ;
 		cout << "\n";
 
-		const double alienshipRadius = 10.0; // Adjust this radius to fit your tanks' size
+		const double alienshipRadius = 10.0; 
 
-		// Calculate the distance between player and tank
+	
 		double dist = distance(playerX + 10, playerY, playerZ + 10, alienshipX, alienshipY, alienshipZ);
 		cout << "Distance:" << dist;
 		cout << "\n";
@@ -565,11 +564,11 @@ bool checkAlienLaserCollision() {
 			countLevel++;
 			cout << "LEVEELL:" << countLevel;
 			cout << "\n";
-			//collidedTankIndex = i;
-			return true; // Collision detected with tank[i]
+		
+			
 		}
 	}
-	return false; // No collision
+	
 }
 
 //bool checkAlienLaserCollision() {
@@ -604,70 +603,32 @@ bool checkAlienLaserCollision() {
 //}
 
 
-bool checkCoinCollision() {
-	// Check collision of player with tanks
-	const double playerRadius = 1.0; // Adjust this radius to fit your game's collision detection needs
+void checkCoinCollision() {
+	
+	const double playerRadius = 1.0; 
 
 	for (int i = 0; i < 4; ++i) {
 		double coinX = coinsposition[i][0];
-		double coinY = 0; // Assuming tanks are at ground level
+		double coinY = 0; 
 		double coinZ = coinsposition[i][1];
 
-		const double coinRadius = 5.0; // Adjust this radius to fit your tanks' size
+		const double coinRadius = 5.0; 
 
-		// Calculate the distance between player and tank
+	
 		double dist = distance(playerX, playerY, playerZ, coinX, coinY, coinZ);
 
-		// If the distance is less than the sum of their radii, it's a collision
+		
 		if (dist < (playerRadius + coinRadius) && coins[i] == 1) {
 			coins[i] = 0;
 			score += 2;
 			PlaySound(TEXT("SpeedBooster.wav"), NULL, SND_ASYNC);
 
-			return true; // Collision detected with tank[i]
+		
 		}
 	}
 
-	return false; // No collision
+	
 }
-/*bool checkTankCollision(double playerX, double playerY, double playerZ) {
-	if ((playerX == 0 && playerY == 0 && playerZ == -180) ||
-		(playerX == -1 && playerY == 0 && playerZ == -180) ||
-		(playerX == -2 && playerY == 0 && playerZ == -180) ||
-		(playerX == 1 && playerY == 0 && playerZ == -180) ||
-		(playerX == 2 && playerY == 0 && playerZ == -180) ||
-		(playerX == 3 && playerY == 0 && playerZ == -180)) {
-		flag = 1;
-	}
-	else if ((playerX == 48 && playerY == 0 && playerZ == -168) ||
-		(playerX == 49 && playerY == 0 && playerZ == -168) ||
-		(playerX == 50 && playerY == 0 && playerZ == -168) ||
-		(playerX == 51 && playerY == 0 && playerZ == -168) ||
-		(playerX == 52 && playerY == 0 && playerZ == -168) ||
-		(playerX == 53 && playerY == 0 && playerZ == -168)) {
-		flag = 2;
-	}
-	else if ((playerX == -98 && playerY == 0 && playerZ == -65) ||
-		(playerX == -99 && playerY == 0 && playerZ == -65) ||
-		(playerX == -100 && playerY == 0 && playerZ == -65) ||
-		(playerX == -101 && playerY == 0 && playerZ == -65) ||
-		(playerX == -102 && playerY == 0 && playerZ == -65) ||
-		(playerX == -103 && playerY == 0 && playerZ == -65)) {
-		flag = 3;
-	}
-	else if ((playerX == -48 && playerY == 0 && playerZ == -299) ||
-		(playerX == -49 && playerY == 0 && playerZ == -299) ||
-		(playerX == -50 && playerY == 0 && playerZ == -299) ||
-		(playerX == -51 && playerY == 0 && playerZ == -299) ||
-		(playerX == -52 && playerY == 0 && playerZ == -299) ||
-		(playerX == -53 && playerY == 0 && playerZ == -299)) {
-		flag = 4;
-	}
-	else {
-		return false; // No collision
-	}
-	return true; // Collision detected
-}*/
 
 
 
