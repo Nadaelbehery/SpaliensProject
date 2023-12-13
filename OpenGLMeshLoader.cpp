@@ -28,6 +28,8 @@ bool alienCollision_1 = false;
 bool alienCollision_2 = false;
 bool alienCollision_3 = false;
 bool alienCollision_4 = false;
+//DAREEN 2ND EVIRO LEVEL
+int countLevel = 0;
 
 //DAREEN firstPersonCamera
 bool firstPerson = false;
@@ -72,12 +74,12 @@ bool wonTwo = false;// won second game move to next scene
 bool lost = false; //won first game move to second environment
 
 int playerSpeed = 10;
-int coinX ;
-int coinY ;
-int coinZ ;
-int tankX ;
-int tankY ;
-int tankZ ;
+int coinX;
+int coinY;
+int coinZ;
+int tankX;
+int tankY;
+int tankZ;
 float playerX = 0;
 float playerY = 0;
 float playerZ = 0;
@@ -284,11 +286,17 @@ void drawLaser() {
 	glPushMatrix();
 	glColor3f(1, 0, 0); // Red color for the laser
 	// Rotate the laser beam
-	glTranslatef(playerX, 0.0f, playerZ-20);
+	glTranslatef(playerX, playerY, playerZ - 20);
+	cout << "LASERX" << playerX;
+    cout << "\n";
+	cout << "LASERY" << playerY;
+	cout << "\n";
+	cout << "LASERZ" << playerZ-20;
+	cout << "\n";
 	glRotated(-5, 0, 0, 1); // Rotation around the Z-axis to keep it in the XY plane
 	glRotated(-90, 0, 1, 0); // Rotation around the Z-axis to keep it in the XY plane
-	float laserLength = 30.0f;
-	float laserWidth = 40.0f;
+	float laserLength = 10.0f;
+	float laserWidth = 20.0f;
 
 	glBegin(GL_QUADS);
 	glVertex3f(-laserWidth / 2, 0, 0); // Bottom left vertex
@@ -357,6 +365,7 @@ void initAlienShips() {
 		//float zPosition = -100 + (rand() % 1);
 		float xPosition = alienshipsposition[i][0];
 		float zPosition = alienshipsposition[i][1];
+		
 
 		//model_commet[i].pos.z = zPosition - model_spacecraft.pos.z;
 
@@ -426,8 +435,8 @@ void drawCoins() {
 void initTanks() {
 	for (int i = 0; i < 4 && tanks[i] == 1; i++) {
 
-	
-	    tankX = tanksposition[i][0];
+
+		tankX = tanksposition[i][0];
 		tankZ = tanksposition[i][1];
 		glPushMatrix();
 		glTranslatef(tankX, 0, tankZ);
@@ -493,7 +502,6 @@ bool checkTankCollision() {
 			return true; // Collision detected with tank[i]
 		}
 	}
-
 	return false; // No collision
 }
 
@@ -522,11 +530,73 @@ bool checkAlienShipCollision() {
 			return true; // Collision detected with tank[i]
 		}
 	}
+	return false; // No collision
+}
+bool checkAlienLaserCollision() {
+	// Check collision of player with tanks
+	const double laserRadius = 10.0; // Adjust this radius to fit your game's collision detection needs
+	for (int i = 0; i < 4; ++i) {
+		double alienshipX = alienshipsposition[i][0];
+		double alienshipY = 0; // Assuming tanks are at ground level
+		double alienshipZ = alienshipsposition[i][1];
 
+		cout << "ALIENSHIPX:" << alienshipX;
+		cout << "\n";
+		cout << "ALIENSHIPY:" << alienshipY;
+		cout << "\n";
+		cout << "ALIENSHIPZ:" << alienshipZ;
+		cout << "\n";
+
+		const double alienshipRadius = 10.0; // Adjust this radius to fit your tanks' size
+
+		// Calculate the distance between player and tank
+		double dist = distance(playerX+10, playerY, playerZ+10, alienshipX, alienshipY, alienshipZ);
+		cout << "Distance:" << dist;
+		cout << "\n";
+		// If the distance is less than the sum of their radii, it's a collision
+		if (-21 < (alienshipZ-(playerZ-20)) && alienships[i] == 1) {
+			cout << "DAREEEEENNNN";
+			alienships[i] = 0;
+			countLevel++;
+			cout << "LEVEELL:" << countLevel;
+			cout << "\n";
+			//collidedTankIndex = i;
+			return true; // Collision detected with tank[i]
+		}
+	}
 	return false; // No collision
 }
 
-
+//bool checkAlienLaserCollision() {
+//	// Check collision of player with tanks
+//	const double playerRadiuss = 1.0; // Adjust this radius to fit your game's collision detection needs
+//
+//	for (int i = 0; i < 4; ++i) {
+//		cout << "DAREENNNNNN"
+//		double alienshipX = alienshipsposition[i][0];
+//		double alienshipY = 0; // Assuming tanks are at ground level
+//		double alienshipZ = alienshipsposition[i][1];
+//
+//		const double alienshipRadius = 10.0; // Adjust this radius to fit your tanks' size
+//
+//		//double dist = distance(playerX+10, playerY+10, playerZ-20+10, alienshipX, alienshipY, alienshipZ);
+//		double dist = distance(playerX, playerY, playerZ, alienshipX, alienshipY, alienshipZ);
+//
+//		// If the distance is less than the sum of their radii, it's a collision
+//		if (dist < (playerRadiuss + alienshipRadius) && alienships[i] == 1) {
+//			alienships[i] = 0;
+//			health -= 2;
+//			playerX -= 40;
+//			camera.moveX(40);
+//			PlaySound(TEXT("laser.wav"), NULL, SND_ASYNC);
+//			//collidedTankIndex = i;
+//			cout << "DAREENNNNNN"
+//			return true; // Collision detected with tank[i]
+//		}
+//	}
+//
+//	return false; // No collision
+//}
 
 
 bool checkCoinCollision() {
@@ -655,10 +725,11 @@ BOOLEAN playerHitComet() {
 			PlaySound(TEXT("cometHit.wav"), NULL, SND_ASYNC);
 			health = health - 1;
 			if (health == 0) {
-				GameOver=true;
-				lost= true; //won first game move to second environment
+				GameOver = true;
+				lost = true; //won first game move to second environment
 
 			}
+		
 			isCollision = true;
 			return true;
 			//commets[i] = 0;
@@ -677,9 +748,9 @@ BOOLEAN playerHitComet() {
 
 
 void checkPlanetReached() {
-	
 
-	if( (abs(playerZ + 470) <= 33) && (abs(playerX - 0) <=30)) {
+
+	if ((abs(playerZ + 470) <= 33) && (abs(playerX - 0) <= 30)) {
 		if (firstEnvironment) {
 			firstEnvironment = false; // Collision detected
 			firstPerson = false;
@@ -700,9 +771,15 @@ void checkPlanetReached() {
 void checkRechedMapEnd() {
 
 
-	if ((abs(playerZ + 650) <= 33)){
-		GameOver = true;
-		lost = true;
+	if ((abs(playerZ + 650) <= 33)) {
+		if (countLevel == 0) {
+			GameOver = true;
+			lost = true;
+		}
+		else {
+			GameOver = true;
+			lost = false;
+		}
 	}
 
 }
@@ -953,7 +1030,7 @@ void timer(int value) {
 	glutTimerFunc(timerInterval, timer, 0);
 }
 void renderBitmapString(float x, float y, void* font, const char* string) {
-	glRasterPos3f(x, y,-1);
+	glRasterPos3f(x, y, -1);
 
 	while (*string) {
 		glutBitmapCharacter(font, *string);
@@ -1033,7 +1110,7 @@ void Display() {
 			glEnable(GL_LIGHTING);
 			glPopMatrix();
 			/*if (isCollision) {
-				glPushMatrix();								
+				glPushMatrix();
 				drawExplosion();
 				glPopMatrix();
 				isCollision = false;
@@ -1075,11 +1152,12 @@ void Display() {
 			glScalef(0.1, 0.1, 0.1);
 			model_spacecraft.Draw();
 			glPopMatrix();
-		
+
 			if (isLaserActive) {
 				//draw Laser Beam 
 				glPushMatrix();
 				drawLaser();
+				checkAlienLaserCollision();
 				glPopMatrix();
 			}
 
@@ -1094,35 +1172,51 @@ void Display() {
 		}
 
 	}
-else {
-	setupCamera();
-	setupLights();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glPushMatrix();
-	glDisable(GL_LIGHTING);
-
-	glBindTexture(GL_TEXTURE_2D, 0); // prevents the color of the text from being changed
-	//displayHealth(camera.eye.x - 1, camera.eye.y, camera.eye.z - 2, 1, 0, 0);
-	string h ;
-
-	if (lost) {
-	 h = "Game Over.You lost!";
-
-	}
 	else {
-		h = "You Won!";
+		setupCamera();
+		setupLights();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glPushMatrix();
+		glDisable(GL_LIGHTING);
+
+		glBindTexture(GL_TEXTURE_2D, 0); // prevents the color of the text from being changed
+		//displayHealth(camera.eye.x - 1, camera.eye.y, camera.eye.z - 2, 1, 0, 0);
+		string h;
+
+		if (lost) {
+			h = "Game Over.You lost!";
+
+		}
+		else {
+			if (countLevel == 1) {
+				cout << "YOU PASSED LEVEL 1";
+				cout << "\n";
+				h = "You passed level 1!";
+			}
+			if (countLevel == 2) {
+				cout << "YOU PASSED LEVEL 2";
+				cout << "\n";
+				h = "You passed level 2!";
+
+			}
+			if (countLevel == 3) {
+				cout << "YOU PASSED LEVEL 2";
+				cout << "\n";
+				h = "You passed level 3!";
+			}
+
+
+		}
+		char hChar[1024];
+		strncpy(hChar, h.c_str(), sizeof(hChar));
+		hChar[sizeof(hChar) - 1] = 0;
+		print(camera.eye.x - 1, camera.eye.y - 0.1, camera.eye.z - 2, 1.0, 0.0, 0.0, hChar);
+		glPopMatrix();
+
+
 
 	}
-	char hChar[1024];
-	strncpy(hChar, h.c_str(), sizeof(hChar));
-	hChar[sizeof(hChar) - 1] = 0;
-	print(camera.eye.x - 1, camera.eye.y - 0.1, camera.eye.z - 2, 1.0,  0.0, 0.0, hChar);
-	glPopMatrix();
 
-
-
-	}
-	
 	glFlush();
 	glutSwapBuffers();
 }
@@ -1130,7 +1224,7 @@ else {
 bool rotateLeft = false;
 bool rotateRight = false;
 
-const float boundaryLeft = -70.0f;  
+const float boundaryLeft = -70.0f;
 const float boundaryRight = 70.0f;
 
 const float forwardSpeed = 0.1f;  // Set your desired forward speed
@@ -1241,25 +1335,24 @@ void Keyboard(unsigned char key, int x, int y) {
 		model_spacecraft.rot.z = model_spacecraft.rot.z + 15.0f;
 		break;
 	case 'k':
-		
 		// Toggle the laser when the 'k' key is pressed
+		PlaySound(TEXT("laser.wav"), NULL, SND_ASYNC);
 		isLaserActive = !isLaserActive;
 		if (isLaserActive) {
 			laserY = playerY + 0.1f; // Adjust the laser starting position
 			// Increase the score when firing the laser
-			score += 10;
 		}
 		break;
 	case 'l':
 		firstPerson = true;
-		camera.eye = Vector3f(playerX, playerY+4, playerZ + 5);
-		camera.center= Vector3f(playerX, playerY+4, playerZ - 5);
+		camera.eye = Vector3f(playerX, playerY + 4, playerZ + 5);
+		camera.center = Vector3f(playerX, playerY + 4, playerZ - 5);
 		//camera.setFrontView();
 		break;
 	case 'm':
 		firstPerson = false;
 		camera.eye = Vector3f(playerX, playerY + 15, playerZ + 60);
-		camera.center = Vector3f(playerX, playerY, playerZ );
+		camera.center = Vector3f(playerX, playerY, playerZ);
 
 		//camera.setFrontView();
 		break;
@@ -1351,7 +1444,7 @@ void mouseButton(int button, int state, int x, int y) {
 void main(int argc, char** argv) {
 	glutInit(&argc, argv);
 
-	glutInitWindowSize(640, 480);
+	glutInitWindowSize(1240, 880);
 	glutInitWindowPosition(50, 50);
 
 	glutCreateWindow("Spaliens");
