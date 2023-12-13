@@ -1,1 +1,72 @@
+README
 
+
+Galactic Battle - OpenGL Game 
+
+Welcome to Galactic Battle, an exciting space-themed game where you, the pilot of an advanced spaceship, engage in thrilling battles against relentless aliens. Your mission is to protect planets, navigate through challenging environments, and demonstrate your superior skills as a space pilot.
+
+
+
+Game Description
+
+Embark on an interstellar journey filled with action-packed spaceship battles against aliens. Your primary objectives include navigating through diverse environments, avoiding obstacles, collecting essential fuel tanks, and reaching the designated planet targets.
+
+
+Main Character Models:
+
+Choose your preferred mode of transportation:
+
+  • Target: Planets to protect and reach.
+  • Obstacle: Fast-moving comets posing a threat.
+  • Collectibles: Fuel tanks to replenish your spaceship's energy.
+
+Second Environment Models: 
+
+Engage in intense battles against alien invaders, featuring:
+
+• Enemy: Alien spaceships with advanced technology.
+• Target: Continue protecting planets from alien threats.
+• Collectibles: Fuel tanks for sustaining your spaceship's combat capabilities.
+
+
+Camera Views:
+Experience the game from different perspectives:
+
+   1-First-Person Shooter Point of View: See through the eyes of the pilot for an      immersive experience.
+   2-Third-Person Shooter Point of View: Observe the action from behind and slightly above, showcasing your spaceship's maneuvers.
+
+
+Navigation:
+Control your spaceship or plane using:
+ Keyboard: Navigate through the game world with intuitive key controls.
+Mouse: Switch between first-person and third-person views for strategic gameplay.
+
+
+Scoring:
+Keep track of your performance with an on-screen score display. Compete against yourself or challenge friends to beat your high score.
+
+
+Dynamic Animations:
+Enjoy a dynamic gaming experience with: 
+Sound effects and transformations accompanying user interactions.
+Visual explosions of enemy spaceships upon successful hits.
+Animated firing sequences, featuring laser beams.
+
+
+
+Lighting Effects:
+
+Experience realistic lighting effects, including:
+Changing color intensity of the scene as you approach the target planet.
+Adjustable flashlight intensity on your spaceship.
+Randomly passing lighting comets in the background for an immersive space atmosphere.
+
+
+
+How to Play:
+1- Use the keyboard to navigate and control your spaceship or plane.
+2- Employ mouse buttons to switch between first-person and third-person views.
+3- Aim, shoot, and strategize to protect planets and defeat alien threats.
+
+Get Ready for Galactic Battle!
+Are you ready to take on the challenges of space combat? Download Galactic Battle now and prove your skills as the ultimate space pilot! May the galaxies be in your favor.
