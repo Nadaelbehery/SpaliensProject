@@ -10,7 +10,7 @@
 using namespace std;
 int WIDTH = 1280;
 int HEIGHT = 720;
-int Fuel = 4000;
+int Fuel = 1000;
 
 GLuint tex;
 GLuint two_tex;
@@ -43,7 +43,7 @@ GLdouble zFar = 10000000;
 // Model Variables
 Model_3DS model_spacecraft;
 Model_3DS model_commet[12];
-float commetsPosition[12][2] = { {-650,-100},{40,-900} ,{-100,-123} ,{-460,-400} ,{199,-480} ,{40,-700} ,{220,-330} ,{-20,-800} ,{480,-1000} ,{50,-300} ,{220,-450} ,{-190,-450} };
+float commetsPosition[12][2] = { {-65,-100},{50,-800} ,{-120,-123} ,{-460,-400} ,{199,-480} ,{70,-700} ,{100,-330} ,{-70,-800} ,{108,-1000} ,{50,-300} ,{-22,-450} ,{99,-450} };
 int commets[12] = { 1,1,1,1,1,1,1,1,1,1,1,1 };
 
 Model_3DS model_alienship[4];
@@ -55,9 +55,9 @@ Model_3DS model_coin[4];
 float coinsposition[4][2] = { {-100,-70},{-50,-300} ,{0,-180} ,{50,-170} };
 int coins[4] = { 1,1,1,1 };
 int flag;
-Model_3DS model_tank[4];
-float tanksposition[4][2] = { {-100,-70},{-50,-300} ,{0,-180} ,{50,-170} };
-int tanks[4] = { 1,1,1,1 };
+Model_3DS model_tank[8];
+float tanksposition[8][2] = { {-100,-70},{-50,-300} ,{0,-180} ,{50,-170},{-37,-420},{33,-650},{80,-170},{0,-700} };
+int tanks[8] = { 1,1,1,1,1,1,1,1};
 
 Model_3DS model_tree;
 Model_3DS model_moon;
@@ -322,7 +322,7 @@ void LoadAssets()
 		model_coin[i].Load("Models/coin/Coin 2.3DS");
 	}
 
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < 8; i++) {
 		model_tank[i].Load("Models/fuelTank/gasContain.3DS");
 	}
 	//model_moon.Load("Models/MoonZ/moon.3ds");
@@ -433,7 +433,7 @@ void drawCoins() {
 }
 
 void initTanks() {
-	for (int i = 0; i < 4 && tanks[i] == 1; i++) {
+	for (int i = 0; i < 8 && tanks[i] == 1; i++) {
 
 
 		tankX = tanksposition[i][0];
@@ -451,7 +451,7 @@ void initTanks() {
 
 
 void drawTanks() {
-	int numTanks = 4;
+	int numTanks = 8;
 	float viewWidth = 780;
 	float spacing = viewWidth / numTanks;
 
@@ -481,7 +481,7 @@ bool checkTankCollision() {
 	// Check collision of player with tanks
 	const double playerRadius = 1.0; // Adjust this radius to fit your game's collision detection needs
 
-	for (int i = 0; i < 4; ++i) {
+	for (int i = 0; i < 8; ++i) {
 		double tankX = tanksposition[i][0];
 		double tankY = 0; // Assuming tanks are at ground level
 		double tankZ = tanksposition[i][1];
@@ -495,7 +495,7 @@ bool checkTankCollision() {
 		if (dist < (playerRadius + tankRadius) && tanks[i] == 1) {
 			tanks[i] = 0;
 			score += 2;
-			Fuel = 350;
+			Fuel += 350;
 			PlaySound(TEXT("fuelTank.wav"), NULL, SND_ASYNC);
 
 			//collidedTankIndex = i;
@@ -750,7 +750,7 @@ BOOLEAN playerHitComet() {
 void checkPlanetReached() {
 
 
-	if ((abs(playerZ + 470) <= 33) && (abs(playerX - 0) <= 30)) {
+	if ((abs(playerZ + 1000) <= 33) && (abs(playerX - 0) <= 30)) {
 		if (firstEnvironment) {
 			firstEnvironment = false; // Collision detected
 			firstPerson = false;
@@ -771,7 +771,7 @@ void checkPlanetReached() {
 void checkRechedMapEnd() {
 
 
-	if ((abs(playerZ + 650) <= 33)) {
+	if ((abs(playerZ + 1200) <= 33)) {
 		if (countLevel == 0) {
 			GameOver = true;
 			lost = true;
@@ -824,7 +824,7 @@ void drawMoon() {
 
 	GLUquadricObj* qobj = gluNewQuadric();
 
-	glTranslated(0, 0, -470);
+	glTranslated(0, 0, -1000);
 
 	glRotated(moonRotationAngle, 0, 1, 0);
 
@@ -1085,7 +1085,7 @@ void Display() {
 			glBindTexture(GL_TEXTURE_2D, tex);
 			gluQuadricTexture(qobj, true);
 			gluQuadricNormals(qobj, GL_SMOOTH);
-			gluSphere(qobj, 1000, 100, 1000);
+			gluSphere(qobj, 100000, 1000, 1000);
 			gluDeleteQuadric(qobj);
 
 			glPopMatrix();
@@ -1224,8 +1224,8 @@ void Display() {
 bool rotateLeft = false;
 bool rotateRight = false;
 
-const float boundaryLeft = -70.0f;
-const float boundaryRight = 70.0f;
+const float boundaryLeft = -100.0f;
+const float boundaryRight = 100.0f;
 
 const float forwardSpeed = 0.1f;  // Set your desired forward speed
 
