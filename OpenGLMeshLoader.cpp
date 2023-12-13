@@ -900,6 +900,42 @@ void setupLights() {
 	GLfloat lightPosition[] = { -7.0f, 6.0f, 3.0f, 0.0f };
 	glLightfv(GL_LIGHT0, GL_POSITION, lightIntensity);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, lightIntensity);
+;
+}
+void setMoonLight(){
+	glEnable(GL_LIGHT1);
+	GLfloat l0Diffuse[] = { 1, 0, 0, 1.0f };
+	GLfloat increasedIntensity = 2.0f;
+	for (int i = 0; i < 3; ++i) {
+		l0Diffuse[i] *= increasedIntensity;
+	}
+
+	GLfloat l0Spec[] = { 1.0f, 1.0f, 0.0f, 1.0f };
+	GLfloat l0Ambient[] = { 0.0f, 0.0f, 0.0, 1.0f };
+	GLfloat l0Position[] = { 0.0f,0, -1000,1 };
+	GLfloat l0Direction[] = { 0.0, 1.0, 1.0 };
+
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, l0Diffuse);
+	glLightfv(GL_LIGHT1, GL_AMBIENT, l0Ambient);
+	glLightfv(GL_LIGHT1, GL_POSITION, l0Position);
+	/*glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 30.0);
+	glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, 90.0);*/
+	glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, l0Direction);
+}
+void setspaceshipLight() {
+	glEnable(GL_LIGHT2);
+	GLfloat l0Diffuse[] = { 1, 1, 0, 1.0f };
+	GLfloat l0Ambient[] = { 0.0f, 0.0f, 0.0, 1.0f };
+	GLfloat l0Position[] = { playerX, 0.0f, playerZ - 20, 1 };
+	GLfloat l0Direction[] = { 0.0, 0.0, -1.0 };
+	GLfloat cutoffAngle = 5.0; // Set the cutoff angle of the spotlight
+
+	glLightfv(GL_LIGHT2, GL_DIFFUSE, l0Diffuse);
+	glLightfv(GL_LIGHT2, GL_AMBIENT, l0Ambient);
+	glLightfv(GL_LIGHT2, GL_POSITION, l0Position);
+
+	glLightfv(GL_LIGHT2, GL_SPOT_DIRECTION, l0Direction);
+	glLightf(GL_LIGHT2, GL_SPOT_CUTOFF, cutoffAngle);
 }
 void setupCamera() {
 	glMatrixMode(GL_PROJECTION);
@@ -1043,10 +1079,10 @@ void Display() {
 	if (!GameOver) {
 		setupCamera();
 		setupLights();
-
+		setspaceshipLight();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		if (firstEnvironment) {
-
+			setMoonLight();
 
 
 
@@ -1122,6 +1158,7 @@ void Display() {
 				//sky box
 
 			glPushMatrix();
+			glDisable(GL_LIGHT1);
 
 			GLUquadricObj* qobj;
 			qobj = gluNewQuadric();
