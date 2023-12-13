@@ -62,7 +62,10 @@ int tanks[8] = { 1,1,1,1,1,1,1,1};
 Model_3DS model_tree;
 Model_3DS model_moon;
 Model_3DS model_speedBooster;
+Model_3DS shootingStar;
 
+int shootingX=-90;
+//int shootingZ;
 
 
 int score;
@@ -325,6 +328,8 @@ void LoadAssets()
 	for (int i = 0; i < 8; i++) {
 		model_tank[i].Load("Models/fuelTank/gasContain.3DS");
 	}
+    shootingStar.Load("Models/commet/asteroid 3DS.3DS");
+
 	//model_moon.Load("Models/MoonZ/moon.3ds");
 	//model_tank.Load("Models/fuelTank/uploads_files_3640174_jerrycan_1.3ds");
 	//model_speedBooster.Load("Models/speedBooster/uploads_files_1914765_Rocket.3ds");
@@ -922,6 +927,29 @@ void setMoonLight(){
 	glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, 90.0);*/
 	glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, l0Direction);
 }
+void setupStars() {
+	glEnable(GL_LIGHT3);
+
+	GLfloat l0Diffuse[] = { 1, 1, 1, 1.0f };
+	GLfloat increasedIntensity = 2.0f;
+	for (int i = 0; i < 3; ++i) {
+		l0Diffuse[i] *= increasedIntensity;
+	}
+
+	GLfloat l0Spec[] = { 1.0f, 1.0f, 0.0f, 1.0f };
+	GLfloat l0Ambient[] = { 0.0f, 0.0f, 0.0, 1.0f };
+	GLfloat l0Position[] = {shootingX ,20,playerZ-40,1 };
+	GLfloat l0Direction[] = { 0.0, 1.0, 1.0 };
+
+	glLightfv(GL_LIGHT3, GL_DIFFUSE, l0Diffuse);
+	glLightfv(GL_LIGHT3, GL_AMBIENT, l0Ambient);
+	glLightfv(GL_LIGHT3, GL_POSITION, l0Position);
+	/*glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 30.0);
+	glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, 90.0);*/
+	glLightfv(GL_LIGHT3, GL_SPOT_DIRECTION, l0Direction);
+    
+}
+
 void setspaceshipLight() {
 	glEnable(GL_LIGHT2);
 	GLfloat l0Diffuse[] = { 1, 1, 0, 1.0f };
@@ -1080,8 +1108,11 @@ void Display() {
 		setupCamera();
 		setupLights();
 		setspaceshipLight();
+		setupStars();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		if (firstEnvironment) {
+			glDisable(GL_LIGHT3);
+
 			setMoonLight();
 
 
@@ -1167,7 +1198,7 @@ void Display() {
 			glBindTexture(GL_TEXTURE_2D, two_tex);
 			gluQuadricTexture(qobj, true);
 			gluQuadricNormals(qobj, GL_SMOOTH);
-			gluSphere(qobj, 1000, 100, 1000);
+			gluSphere(qobj, 100000, 100, 1000);
 			gluDeleteQuadric(qobj);
 			glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -1189,7 +1220,17 @@ void Display() {
 			glScalef(0.1, 0.1, 0.1);
 			model_spacecraft.Draw();
 			glPopMatrix();
-
+			glPushMatrix();
+			if (shootingX < 90) {
+				shootingX+=1;
+			}
+			else {
+				shootingX = -90;
+			}
+			glTranslatef(shootingX,20, playerZ-40);
+			glScalef(0.1, 0.1, 0.1);
+			shootingStar.Draw();
+			glPopMatrix();
 			if (isLaserActive) {
 				//draw Laser Beam 
 				glPushMatrix();
